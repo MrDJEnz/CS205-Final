@@ -4,14 +4,24 @@ from card import Card
 class Deck:
     def __init__(self):
         self.deck = []
-        self.createDeck()
+        self.createRiskDeck()
 
-    def createDeck(self):
-        for t in ["PLACEHOLDER FOR LIST OF ALL TERRITORIES"]:
-            for a in ["infantry", "cavalry", "artillery"]:
-                for v in (3, 20): #army size?
-                    self.deck.append(Card(t, a, v))
+    #generates deck of all risk cards (42.. one for each territory)
+    def createRiskDeck(self):
+        armyType = ["Infantry", "Cavalry", "Artillery"]
 
+        #creates random army/numbers
+        for t in range(1, 43):
+            randArmy = random.randint(0, 2)
+            self.deck.append(Card("Territory: " + str(t), "Army: " + armyType[randArmy], "Troops: " + str(random.randint(2, 5))))
+
+    #draws 3 cards from deck, and returns them as a list/hand
+    def dealThreeCards(self):
+        removedCards = []
+        for i in range(3):
+            removedCards.append(self.deck.pop())
+        return removedCards
+    
     def showDeck(self):
         for c in self.deck:
             c.showCard()
