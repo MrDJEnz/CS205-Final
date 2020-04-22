@@ -1,64 +1,73 @@
+# Team 9 RISK
 import random
 import copy
 
+# Contains goal condition checks, players complete objectives to win
 class Objective():
     def __init__(self,goal,player):
-        self.goal=goal
-        self.type=self.goal.types[random.randint(0,len(self.goal.types)-1)]
-        self.player=player
-        self._description=''
+        self.goal = goal
+        self.type = self.goal.types[random.randint(0,len(self.goal.types)-1)]
+        self.player = player
+        self._description = ""
         self.gen_obj()
 
     def gen_obj(self):
-        if self.type=='capture continents':
-            self.continents=[]
-            self.other_cont=False
-            self.nbtroupes=1
-            r_choice=random.choice(self.goal.randrange[0])
-            self.goal.randrange[0].remove(r_choice) #on enleve la combinaison choisi pour eviter les doublons de missions
-            if r_choice==0:
+        if self.type == "Captured continent":
+            self.continents = []
+            self.other_cont = False
+            self.nbtroupes = 1
+            r_choice = random.choice(self.goal.randrange[0])
+            self.goal.randrange[0].remove(r_choice) #Prevent mission dupe
+            
+            if r_choice == 0:
                 self.continents.append(self.goal.map.continents[4])
                 self.continents.append(self.goal.map.continents[5])
-                self.other_cont=True
-            elif r_choice==1:
+                self.other_cont = True
+                
+            elif r_choice == 1:
                 self.continents.append(self.goal.map.continents[4])
                 self.continents.append(self.goal.map.continents[2])
-                self.other_cont=True
-            elif r_choice==2:
+                self.other_cont = True
+                
+            elif r_choice == 2:
                 self.continents.append(self.goal.map.continents[1])
                 self.continents.append(self.goal.map.continents[0])
-            elif r_choice==3:
+                
+            elif r_choice == 3:
                 self.continents.append(self.goal.map.continents[1])
                 self.continents.append(self.goal.map.continents[5])
-            elif r_choice==4:
+                
+            elif r_choice == 4:
                 self.continents.append(self.goal.map.continents[3])
                 self.continents.append(self.goal.map.continents[2])
-            elif r_choice==5:
+                
+            elif r_choice == 5:
                 self.continents.append(self.goal.map.continents[3])
                 self.continents.append(self.goal.map.continents[0])
-        if self.type=='capture territories':
-            r_choice=random.randint(0,1)
-            if r_choice==0:
-                self.nbpays=18
-                self.nbtroupes=2
-            if r_choice==1:
-                self.nbpays=24
-                self.nbtroupes=1
-        if self.type=='kill all enemies':
-            randrange_excl=copy.copy(self.goal.randrange[2])
+                
+        if self.type == "Capture territories":
+            r_choice = random.randint(0, 1)
+            if r_choice == 0:
+                self.nbpays = 18
+                self.nbtroupes = 2
+            if r_choice == 1:
+                self.nbpays = 24
+                self.nbtroupes = 1
+                
+        if self.type == "Kill all enemies":
+            randrange_excl = copy.copy(self.goal.randrange[2])
             try:
-                randrange_excl.remove(self.player.id)#exclude himself
+                randrange_excl.remove(self.player.id) #Excluding self
             except ValueError:
-                pass #player deja remove de la list
-            if len(randrange_excl)==0:
-                print('you lost')
+                pass #If player already lost
+            if len(randrange_excl) == 0:
+                print("You lost!")
             try:
-                randid=random.choice(randrange_excl)
-                print(self.goal.randrange[2],randrange_excl,randid)
-                self.goal.randrange[2].remove(randid)#on enleve la combinaison pour eviter les doublons de mission
-                self.target=self.goal.turns.players[randid-1] 
-            except IndexError: #le seul joueur attaquable est lui mm
-                self.type=self.goal.types[random.randint(0,1)]#on choisi une autre mission
+                randid = random.choice(randrange_excl)
+                self.goal.randrange[2].remove(randid) #Prevent mission dupe
+                self.target=self.goal.turns.players[randid - 1] 
+            except IndexError: #Restricted attackable players
+                self.type = self.goal.types[random.randint(0,1)] #Pick different mission
                 self.gen_obj()
             
     @property
@@ -81,46 +90,47 @@ class Objective():
             else:
                 return 'Destory '+str(self.target.name)
 
-    def get_state(self):
+    # Returns goal completion status for game victory
+    def getGoalStatus(self):
         if self.type=='capture territories':
-            return self.capture_pays(self.nbpays,self.nbtroupes)
+            return self.captureTerritory(self.nbpays,self.nbtroupes)
         if self.type=='capture continents':
-            return self.capture_continents(self.continents,self.nbtroupes)
+            return self.captureContinent(self.continents,self.nbtroupes)
         if self.type=='kill all enemies':
-            return self.destroy_player(self.target)        
+            return self.destoryPlayer(self.target)        
 
-    def capture_pays(self,nb_pays,nb_troupes):
-        nb_occupe=0
-        for p in self.goal.map.pays:
+    def captureTerritory(self,nb_pays,nb_troupes):
+        numOccupyingTroops=0
+        for p in self.goal.map.territories:
             if p.nb_troupes>nb_troupes-1 and p.id_player==self.player.id:
-                nb_occupe+=1
-        if nb_occupe>nb_pays-1:
+                numOccupyingTroops+=1
+        if numOccupyingTroops>nb_pays-1:
             self.goal.turns.game_finish=True
             return True
         else:
             return False
 
-    def capture_continents(self,continents,nb_troupes):
-        nb_occupe=0
+    def captureContinent(self,continents,nb_troupes):
+        numOccupyingTroops=0
         for c in continents:
-            cont_occupe=True
-            for p in c.pays:
+            occupiedFlag=True
+            for p in c.territories:
                 if p.nb_troupes<nb_troupes or p.id_player!=self.player.id:
-                    cont_occupe=False
-            if cont_occupe==True:
-                nb_occupe+=1
+                    occupiedFlag=False
+            if occupiedFlag==True:
+                numOccupyingTroops+=1
         if self.other_cont:
             #player must have another continent
             additionnal_cont=0
             other_conts=[x for x in self.goal.map.continents if x not in continents]
             for c in other_conts:
-                cont_occupe=True
-                for p in c.pays:
+                occupiedFlag=True
+                for p in c.territories:
                     if p.nb_troupes<nb_troupes or p.id_player!=self.player.id:
-                        cont_occupe=False
-                if cont_occupe==True:
+                        occupiedFlag=False
+                if occupiedFlag==True:
                     additionnal_cont+=1
-        if nb_occupe == len(continents):
+        if numOccupyingTroops == len(continents):
             if self.other_cont and additionnal_cont>0:
                 self.goal.turns.game_finish=True
                 return True
@@ -132,7 +142,7 @@ class Objective():
         else:
             return False
 
-    def destroy_player(self,player):
+    def destoryPlayer(self,player):
         if not player.isalive:
             self.goal.turns.game_finish=True
             return True

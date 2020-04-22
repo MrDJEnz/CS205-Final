@@ -1,3 +1,4 @@
+# Team 9 RISK
 # Game can be run by itself for debugging, run the RiskGUI to setup player settings
 
 # Imports needed modules
@@ -6,28 +7,24 @@ import glob
 import pickle
 import pygame
 from pygame import *
-
-from ColorMap import ColorMap
-from GamePara import GamePara
-from SpritePays import SpritePays
+from Sprites import Sprites
 
 import Constants as c
 
 # Class contains pygame methods
 class Game():
-    def __init__(self, pygameWindow, Round): #Initializes surfaces for pygame given pygame and round instances
+    def __init__(self, pygameWindow, Turn): #Initializes surfaces for pygame given pygame and round instances
         self.pygameWindow = pygameWindow
 
         # Updates current objects
-        self.game = GamePara()
-        self.map = Round.map
-        self.players = Round.players
-        self.Round = Round
+        self.map = Turn.map
+        self.players = Turn.players
+        self.Turn = Turn
 
         self.numTroops = 25 #Sets number of troops
         self.selectedTerritory = None
 
-        self.dices = [] #Contains dice results
+        self.interfaceDice = [] #Contains dice results
         self.functions = [] #Contains function calls
         self.interfaceText = [] #Contains text layers for HUD
         self.surfaces = [] #Contains surface layers
@@ -37,19 +34,19 @@ class Game():
 
     @property # Decorator overwrites get/set, method checks min deployment troops
     def troopCount(self):
-        if self.Round.phase == 0:
-            return min(self.numTroops, self.players[self.Round.player_turn-1].nb_troupes) #Cannot deploy more then total - 1 troops from territory
+        if self.Turn.phase == 0:
+            return min(self.numTroops, self.players[self.Turn.turnCount-1].nb_troupes) #Cannot deploy more then total - 1 troops from territory
         else:
             return self.numTroops
 
     @troopCount.setter # Alternative corresponding decorator
     def troopCount(self, troopVal):
-        if self.Round.phase == 0: #Checks troop placement during different phases
+        if self.Turn.phase == 0: #Checks troop placement during different phases
             if troopVal < 1:
                 self.numTroops = 1
                 print("Too few troops")
-            elif troopVal > self.players[self.Round.player_turn - 1].nb_troupes:
-                self.numTroops = self.players[self.Round.player_turn - 1].nb_troupes
+            elif troopVal > self.players[self.Turn.turnCount - 1].nb_troupes:
+                self.numTroops = self.players[self.Turn.turnCount - 1].nb_troupes
                 print("Too many troops")
         else: 
             if troopVal < 0:
@@ -64,9 +61,9 @@ class Game():
     # Sets a color layer on territory sprites based on player color
     def colorTerritories(self, sprites):
         for p in self.players:
-            for pays in p.pays:
-                sprite = next((s for s in sprites if s.id == pays), None)
-                color_surface(sprite, p.color, 255)
+            for territories in p.territories:
+                sprite = next((s for s in sprites if s.id == territories), None)
+                setSurfaceColor(sprite, p.color, 255)
 
     # Method initialzes map surface
     def run(self):
@@ -95,466 +92,482 @@ class Game():
 
     # Method utilizes overlay methods to update pygameWindow
     def display(self, function = None):
-        colormap = ColorMap()
 
-        # Boolean flags for player functions
-        select = False
-        atck_winmove = False
-        help_menu = False
-        hide = True
-
+        # Loads png sprites for highlighting selected territories
         worldTerritories = glob.glob(c.mapPath + "*.png")
         territorySprites = []
-        
-        id_c = 0
-        sprite_select = -1
-        display = 1
+        highlightedTerritories = []
 
-        territorySpriteLayer = []
+        selectedTerritory = -1
 
-        # Updating territory sprites
+        # Boolean flags for player functions
+        selectFlag = False
+        attackFlag = False
+        helpFlag = False
+        gameEnd = False
+
+
+        # Format territory sprites and add to surface
         for i, j in enumerate(worldTerritories):
-            s = pygame.image.load(j).convert()
-            resize = c.windowLength/s.get_width()
-            s = pygame.transform.scale(s, (int(resize * s.get_width()),int(resize * s.get_height())))
+            surface = pygame.image.load(j).convert()
+            resize = c.windowLength/surface.get_width()
             
-            sp = SpritePays(s, j)
-            sp_masque = SpritePays(s.copy(),j)
+            surface = pygame.transform.scale(surface, (int(resize * surface.get_width()), int(resize * surface.get_height())))
             
-            color_surface(sp_masque, (1, 1, 1), 150)
-            territorySprites.append(sp)
-            territorySpriteLayer.append(sp_masque)
+            territorySprite = Sprites(surface, j)
+            initialSpriteLayer = Sprites(surface.copy(), j)
+            
+            setSurfaceColor(initialSpriteLayer, (1, 1, 1), 150)
+            territorySprites.append(territorySprite)
+            highlightedTerritories.append(initialSpriteLayer)
 
+        # Creates final layer of all connected sprites
         self.colorTerritories(territorySprites)
-        for i, spr in enumerate(territorySprites):
+        for i, j in enumerate(territorySprites):
             if i == 0:
-                merged_pays = spr.map_pays.copy()
+                finalLayout = j.layout.copy()
             else:
-                merged_pays.blit(spr.map_pays, (0, 0))
+                finalLayout.blit(j.layout, (0, 0))
 
         # Update visual troop numbers
         troopDisplay(self.textList, territorySprites, self.map)
 
         # Event handler
-        while display:
-            for event in pygame.event.get():
+        while (not gameEnd):
+            for event in pygame.event.get(): #Checks every mouse and key action in window
                 if event.type == QUIT:
-                    display = 0
+                    print("Ending game!")
+                    gameEnd = True
+
+                # Handling key presses
                 elif event.type == KEYDOWN:
-                    if event.key == K_ESCAPE:
-                        display = 0
-                    elif event.key == K_n:
+                    if event.key == K_ESCAPE: #Exit program on key press
+                        print("Ending game!")
+                        gameEnd = True
+                        
+                    elif event.key == K_s: #Save game and exit
+                        saveGame(self)
+                        
+                    elif event.key == K_r: #Restore saved game
+                        loadGame(self.Turn)
+                        
+                    elif event.key == K_n: #Proceed to next round
                         try:
-                            self.Round.next()
+                            self.Turn.next()
                         except ValueError as e:
                             print(e.args)
-                        self.tempTerritoryList=[]
-                        select=False
-                        sprite_select=0
-                    elif event.key == K_p:
-                        try:
-                            self.Round.next_player()
-                        except ValueError as e:
-                            print(e.args)
-                        self.tempTerritoryList=[]
-                        select=False
-                        sprite_select=0
-                    elif event.key == K_w:# for debugging
-                        self.Round.game_finish=True
-                    elif event.key == K_h:
-                        help_menu = not help_menu
-                    elif event.key == K_c:
-                        self.tempTerritoryList=[]
-                        display_continent(self.Round.map.continents[id_c],self.tempTerritoryList,territorySpriteLayer)
-                        id_c=(id_c+1)%len(self.Round.map.continents)
-                    elif event.key == K_u:#use cards
-                        self.Round.players[self.Round.player_turn-1].use_best_cards()
-                    elif event.key == K_d:#show/hide player objectives
-                        hide = not hide
-                    elif event.key == K_s:#save
-                        save_game(self)
-                    elif event.key == K_r:#restoration
-                        restore_game(self.Round)
+
+                        self.tempTerritoryList = [] #Resets selected territory for next player
+                        selectFlag = False
+                        selectedTerritory = 0
+
+                    elif event.key == K_h: #Help screen
+                        helpFlag = not helpFlag
+                        
+                # Handling mouse-clicks/scrolls                
                 elif event.type == MOUSEBUTTONDOWN:
                     try:
-                        if event.button==3: #rigth click to unselect
-                            self.tempTerritoryList=[]
-                            select=False
-                            sprite_select=0
-                        elif event.button==4:#scroll wheel up
-                            self.troopCount+=1
-                        elif event.button==5:#scroll wheel down
-                            if self.troopCount>0:
-                                self.troopCount-=1
+                        if event.button == 3: #Right mouse-click to unselect (selected) territory
+                            self.tempTerritoryList = []
+                            selectFlag = False
+                            selectedTerritory = 0
+                            
+                        elif event.button == 4: #Scroll mousewheel down to increase selected troops
+                            self.troopCount += 1
+                            
+                        elif event.button == 5: #Scroll mousewheel down to decrease selected troops
+                            if self.troopCount > 0:
+                                self.troopCount -= 1
+                                
                     except AttributeError as e:
-                        print('You should select a country first')
+                        print("You should select a country first ...")
                     except ValueError as e:
                         print(e.args)
 
+            # Sends layers to surface of pygame
             for surface in self.surfaces:
-                self.pygameWindow.blit(surface[0],surface[1])
-            for dice in self.dices:
-                self.pygameWindow.blit(dice[0],dice[1])
-            self.pygameWindow.blit(merged_pays,(0,0))
+                self.pygameWindow.blit(surface[0], surface[1])
+                
+            for dice in self.interfaceDice:
+                self.pygameWindow.blit(dice[0], dice[1])
+                
+            self.pygameWindow.blit(finalLayout, (0, 0))
+            
             for tempTerritoryList in self.tempTerritoryList:
-                self.pygameWindow.blit(tempTerritoryList,(0,0))
-            for texte in self.textList:
-                self.pygameWindow.blit(texte[0],texte[1])
+                self.pygameWindow.blit(tempTerritoryList, (0, 0))
+                
+            for text in self.textList:
+                self.pygameWindow.blit(text[0], text[1])
+                
             for t in self.interfaceText:
-                self.pygameWindow.blit(t[0],t[1])
+                self.pygameWindow.blit(t[0], t[1])
+                
             for final in self.topLevel:
-                self.pygameWindow.blit(final[0],final[1])
+                self.pygameWindow.blit(final[0], final[1])
+                
             if self.functions != []:
                 for f in self.functions:
                     f()
 
-            # Screen for when player wins
-            if self.Round.players[self.Round.player_turn-1].obj.get_state()==True:
-                self.topLevel=[]
-                win_screen = pygame.Surface(self.pygameWindow.get_size())
-                win_screen = win_screen.convert()
-                win_screen.fill(colormap.black)
-                win_screen.set_alpha(180)
-                self.topLevel.append([win_screen,(0,0)])
+            # Shows victory screen if player completes domination goal
+            if self.Turn.players[self.Turn.turnCount - 1].obj.getGoalStatus() == True:
+                self.topLevel = []
+                
+                topLayer = pygame.Surface(self.pygameWindow.get_size())
+                topLayer = topLayer.convert()
+                topLayer.fill(c.black)
+                topLayer.set_alpha(180)
+                
+                self.topLevel.append([topLayer, (0,0)])
                 display_win(self.topLevel,self.players)
+
+            # Uses same top layer to contain help screen
             else:
-                if help_menu:
+                if helpFlag:
                     self.topLevel=[]
-                    win_screen = pygame.Surface(self.pygameWindow.get_size())
-                    win_screen = win_screen.convert()
-                    win_screen.fill(colormap.black)
-                    win_screen.set_alpha(180)
-                    self.topLevel.append([win_screen,(0,0)])
-                    display_help(self.topLevel,colormap)
+                    
+                    topLayer = pygame.Surface(self.pygameWindow.get_size())
+                    topLayer = topLayer.convert()
+                    topLayer.fill(c.black)
+                    topLayer.set_alpha(180)
+                    
+                    self.topLevel.append([topLayer, (0,0)])
+                    display_help(self.topLevel)
                 else:
                     self.topLevel=[]
 
+            # Highlight territories as cursor moves over them
             mouse = pygame.mouse.get_pos()
             try:
-                mouse_color=self.surfaces[2][0].get_at((mouse[0],mouse[1]))
+                tempColorValue=self.surfaces[2][0].get_at((mouse[0], mouse[1]))
             except IndexError as e:
                 pass
-
+            
+            # Setups user GUI layout and enables player functions
             try:
-                if mouse_color != (0,0,0,0) and mouse_color != (0,0,0,255):
-                    temptroopValID=mouse_color[0]-100
-                    sp_msq=next((sp for sp in territorySpriteLayer if sp.id == temptroopValID), None)
-                    if temptroopValID != sprite_select:
-                        self.pygameWindow.blit(sp_msq.map_pays,(0,0))
-                        pygame.display.update(sp_msq.map_pays.get_rect())
-                    click=pygame.mouse.get_pressed()
-                    if self.Round.list_phase[self.Round.phase] == 'Placement':
-                            if click[0]==1:
-                                pays=next((p for p in self.map.pays if p.id == temptroopValID), None) 
-                                if pays.id_player==self.Round.player_turn:
-                                    self.Round.placer(pays,self.troopCount)
-                                    pygame.time.wait(100)
-                                else:
-                                    print('This territory does not belong to the player!')
-                    elif self.Round.list_phase[self.Round.phase] == 'Attack':
-                        if click[0]==1 and not select: #selection du pays attaquant 
-                            pays1=next((p for p in self.map.pays if p.id == temptroopValID), None)
-                            self.selectedTerritory=pays1
-                            if pays1.id_player==self.Round.player_turn and pays1.nb_troupes>1:
-                                self.troopCount=pays1.nb_troupes-1
-                                self.tempTerritoryList.append(sp_msq.map_pays)
-                                select=True 
-                                sprite_select=temptroopValID
-                        elif click[0]==1:#selection du pays attaqué
-                            pays2=next((p for p in self.map.pays if p.id == temptroopValID), None)
-                            if atck_winmove and pays2 == pays_atck and pays1.nb_troupes>1:#mouvement gratuit apres attaque reussi
-                                self.Round.deplacer(pays1,pays2,self.troopCount)
-                                select=False
-                                self.tempTerritoryList=[]
-                                atck_winmove=False
-                            elif atck_winmove:
-                                select=False
-                                self.tempTerritoryList=[]
-                                atck_winmove=False
-                            elif pays2.id_player!=self.Round.player_turn and pays2.id in pays1.voisins:
+                if tempColorValue != (0,0,0,0) and tempColorValue != (0,0,0,255):
+                    temptroopValID = tempColorValue[0] - 100
+                    spriteLayer = next((territorySprite for territorySprite in highlightedTerritories if territorySprite.id == temptroopValID), None)
+
+                    # Update selected territory visuals
+                    if temptroopValID != selectedTerritory:
+                        self.pygameWindow.blit(spriteLayer.layout, (0, 0))
+                        pygame.display.update(spriteLayer.layout.get_rect())
+
+                    # On click, check phase and territory function validity
+                    click = pygame.mouse.get_pressed()
+
+                    # Placing reinforcements on owned territories
+                    if self.Turn.list_phase[self.Turn.phase] == "Placement":
+                        if click[0] == 1:
+                            playerTerritory = next((p for p in self.map.territories if p.id == temptroopValID), None) 
+                            if playerTerritory.id_player == self.Turn.turnCount:
+                                self.Turn.placeTroops(playerTerritory, self.troopCount)
+                                pygame.time.wait(100)
+                            else:
+                                print("This territory does not belong to the player!")
+
+                    # Attacking neighboring territories with n-1 troops
+                    elif self.Turn.list_phase[self.Turn.phase] == "Attack":
+                        if click[0] == 1 and not selectFlag:
+                            startTerritory = next((p for p in self.map.territories if p.id == temptroopValID), None)
+                            self.selectedTerritory = startTerritory
+                            if startTerritory.id_player == self.Turn.turnCount and startTerritory.nb_troupes > 1:
+                                self.troopCount = startTerritory.nb_troupes-1
+                                self.tempTerritoryList.append(spriteLayer.layout)
+                                selectFlag = True 
+                                selectedTerritory = temptroopValID
+                                
+                        elif click[0] == 1: # Selecting territory to attack
+                            endTerritory = next((p for p in self.map.territories if p.id == temptroopValID), None)
+                            if attackFlag and endTerritory == targetTerritory and startTerritory.nb_troupes > 1:
+                                self.Turn.troopMovement(startTerritory, endTerritory, self.troopCount)
+                                selectFlag = False
+                                self.tempTerritoryList = []
+                                attackFlag = False
+                                
+                            elif attackFlag: 
+                                selectFlag = False
+                                self.tempTerritoryList = []
+                                attackFlag  = False
+                                
+                            elif endTerritory.id_player != self.Turn.turnCount and endTerritory.id in startTerritory.voisins: #Attack with home troops
                                 try:
-                                    self.dices=[]         #on efface les ancians sprites des dice                                
-                                    atck,res_l=self.Round.attaque(pays1,pays2,self.troopCount)
-                                    print(res_l)
-                                    for i,res in enumerate(res_l):
-                                        roll_dices(self,res[0],res[2],600,territorySprites[0].map_pays.get_height()+10+i*c.diceSize*1.1)#pas propre
-                                        roll_dices(self,res[1],res[3],800,territorySprites[0].map_pays.get_height()+10+i*c.diceSize*1.1)
-                                    pygame.time.wait(100) #pas propre
-                                    #print(res)
+                                    self.interfaceDice = []                           
+                                    attackResult, diceResults = self.Turn.attack(startTerritory, endTerritory, self.troopCount)
+                                    for i,res in enumerate(diceResults):
+                                        diceRolls(self, res[0], res[2], 600, territorySprites[0].layout.get_height() + 10 + i * c.diceSize * 1.1)
+                                        diceRolls(self, res[1], res[3], 800, territorySprites[0].layout.get_height() + 10 + i * c.diceSize * 1.1)
+                                    pygame.time.wait(100)
                                 except ValueError as e:
                                     print(e.args)
-                                    atck=False
-                                    select=False
-                                    self.tempTerritoryList=[]
-                                if atck:
-                                    sprite=next((s for s in territorySprites if s.id == temptroopValID), None)
-                                    color_surface(sprite,self.Round.players[self.Round.player_turn-1].color,255)
-                                    merged_pays.blit(sprite.map_pays,(0,0))
-                                    atck_winmove=True
-                                    pays_atck=pays2
-                                    self.troopCount=pays1.nb_troupes-1
+                                    attackResult = False
+                                    selectFlag = False
+                                    self.tempTerritoryList = []
+                                if attackResult: #On successful attack, update visuals
+                                    sprite = next((s for s in territorySprites if s.id == temptroopValID), None)
+                                    setSurfaceColor(sprite, self.Turn.players[self.Turn.turnCount - 1].color, 255)
+                                    finalLayout.blit(sprite.layout,(0,0))
+                                    attackFlag = True
+                                    targetTerritory = endTerritory
+                                    self.troopCount = startTerritory.nb_troupes - 1
                                 else:
-                                    select=False
-                                    self.tempTerritoryList=[]
-                    elif self.Round.list_phase[self.Round.phase] == 'Movement':
-                        if click[0]==1 and not select:
-                            pays1=next((p for p in self.map.pays if p.id == temptroopValID), None)
-                            self.selectedTerritory=pays1
-                            if pays1.id_player==self.Round.player_turn and pays1.nb_troupes>1:
-                                self.troopCount=pays1.nb_troupes-1
-                                self.tempTerritoryList.append(sp_msq.map_pays)
-                                select=True 
-                                sprite_select=temptroopValID
-                        elif click[0]==1:
-                            pays2=next((p for p in self.map.pays if p.id == temptroopValID), None)
-                            chemin=self.map.chemin_exist(self.Round.players[self.Round.player_turn-1].pays,pays1,pays2) #checks if path exists
-                            select=False
-                            sprite_select=0
-                            self.tempTerritoryList=[]
-                            if chemin and pays2.id != pays1.id:
-                                self.Round.deplacer(pays1,pays2,self.troopCount)
-                                self.Round.next()
-                    #affichage des troupes
-                    self.textList=[]
-                    troopDisplay(self.textList,territorySprites,self.map)
-                    #break
-            except ValueError as e:
-                pass #pas propre
+                                    selectFlag = False
+                                    self.tempTerritoryList = []
 
-            #HUD
-            self.interfaceText=[]
-            display_hud(self.troopCount,self.interfaceText,self.Round,(75,territorySprites[0].map_pays.get_height()+10),hide)
+                    # Moving troops between territories
+                    elif self.Turn.list_phase[self.Turn.phase] == "Movement":
+                        if click[0] == 1 and not selectFlag: #On left click select territory
+                            startTerritory = next((p for p in self.map.territories if p.id == temptroopValID), None)
+                            self.selectedTerritory = startTerritory
+                            if startTerritory.id_player == self.Turn.turnCount and startTerritory.nb_troupes > 1:
+                                self.troopCount = startTerritory.nb_troupes - 1
+                                self.tempTerritoryList.append(spriteLayer.layout)
+                                selectFlag = True 
+                                selectedTerritory = temptroopValID
+                                
+                        elif click[0] == 1: #On right click unselect territory
+                            endTerritory = next((p for p in self.map.territories if p.id == temptroopValID), None)
+                            path = self.map.checkPathValid(self.Turn.players[self.Turn.turnCount - 1].territories, startTerritory, endTerritory)
+                            selectFlag = False
+                            selectedTerritory = 0
+                            self.tempTerritoryList = []
+                            
+                            if path and endTerritory.id != startTerritory.id:
+                                self.Turn.troopMovement(startTerritory, endTerritory, self.troopCount)
+                                self.Turn.next()
+                                
+                    # Update troop text overlay visuals
+                    self.textList = []
+                    troopDisplay(self.textList, territorySprites, self.map)
+                    
+            except ValueError as e:
+                pass
+
+            # Update HUD text visuals
+            self.interfaceText = []
+            display_hud(self.troopCount, self.interfaceText, self.Turn, (75, territorySprites[0].layout.get_height() + 10))
             pygame.display.flip()
 
-#############################
-def text_objects(text, font,color=(0,0,0)):
+
+
+# Returns information for text handling
+def textArea(text, font, color = (0, 0, 0)):
     textSurface = font.render(text, True, color)
     return textSurface, textSurface.get_rect()
 
-def button(msg,x,y,w,h,ic,ac,action=None):
+
+# Creates clickable area for mouse interactions and overlays with text
+def button(txt, xPos, yPos, width, height, ic, ac, command = None):
     mouse = pygame.mouse.get_pos()
     click = pygame.mouse.get_pressed()
-    if x+w > mouse[0] > x and y+h > mouse[1] > y:
-        pygame.draw.rect(pygameWindow, ac,(x,y,w,h))
+    if xPos + width > mouse[0] > xPos and yPos + height > mouse[1] > yPos:
+        pygame.draw.rect(pygameWindow, ac,(xPos, yPos, width, height))
         if click[0] == 1 and action != None:
             Win.functions.append(action)
     else:
-        pygame.draw.rect(pygameWindow, ic,(x,y,w,h))
+        pygame.draw.rect(pygameWindow, ic,(xPos, yPos, width, height))
 
-    smallText = pygame.font.Font(None,15)
-    textSurf, textRect = text_objects(msg, smallText)
-    textRect.center = ( (x+(w/2)), (y+(h/2)) )
-    pygameWindow.blit(textSurf, textRect)
+    smallText = pygame.font.Font(None, 15)
+    textSurface, textBox = textArea(txt, smallText)
+    textBox.center = ((xPos + (w/2)), (yPos + (height/2)))
+    
+    pygameWindow.blit(textSurface, textBox)
 
 
+# Sets sprite overlay colors
+def setSurfaceColor(sprite, color, alpha):
+    for x in range(0, sprite.bounds.width):
+        for y in range(0, sprite.bounds.height):
+            if sprite.layout.get_at((sprite.bounds.x + x, sprite.bounds.y + y)) != (0, 0, 0):
+                sprite.layout.set_at((sprite.bounds.x + x, sprite.bounds.y + y), color)
+                sprite.layout.set_alpha(alpha)
 
-# Color setter
-def color_surface(sprite,color,alpha):
-    for x in range(0,sprite.bounds.width):
-        for y in range(0,sprite.bounds.height):
-            if sprite.map_pays.get_at((sprite.bounds.x+x,sprite.bounds.y+y))!=(0,0,0):
-                sprite.map_pays.set_at((sprite.bounds.x+x,sprite.bounds.y+y),color)
-                sprite.map_pays.set_alpha(alpha)
-
-def add_text(layer,message,pos,font,color=(0,0,0)):
-    textSurf, textRect = text_objects(message, font,color)
-    textRect.topleft = pos
-    layer.append([textSurf, textRect])
 
 # Update troop visual count
-def troopDisplay(textList,sprites,Map):
-    smallText = pygame.font.Font(None,13)
+def troopDisplay(textList, sprites, Map):
+    smallText = pygame.font.Font(None, 13)
     for sprite in sprites:
-        pays=Map.pays[sprite.id-1]
-        textSurf, textRect = text_objects(str(pays.nb_troupes), smallText)
-        textRect.center = sprite.bounds.center
-        textList.append([textSurf, textRect])
+        territories = Map.territories[sprite.id-1]
+        textSurface, textBox = textArea(str(territories.nb_troupes), smallText)
+        textBox.center = sprite.bounds.center
+        textList.append([textSurface, textBox])
 
-def display_win(topLevel,players):
-    bigText = pygame.font.Font(None,35)
-    marge=50
-    pos=(200,200)
+
+# Player victory screen if a player completes goals
+def display_win(topLevel, players):
+    largeText = pygame.font.Font(None, 35)
+    margin = 50
+    textPosition = (200, 200)
     for p in players:
-        if p.obj.get_state()==True:
-            p_win=p
-            #player win
-            textSurf, textRect = text_objects(p_win.name+' win', bigText,p_win.color)
-            textRect.topleft = pos
-            pos=(pos[0],pos[1]+marge)
-            topLevel.append([textSurf, textRect])
-            #objective
-            textSurf, textRect = text_objects('Objective '+p_win.obj.description, bigText,p_win.color)
-            textRect.topleft = pos
-            pos=(pos[0],pos[1]+marge)
-            topLevel.append([textSurf, textRect])
+        if p.obj.getGoalStatus() == True:
+            winnerPlayer = p
+            textSurface, textBox = textArea(winnerPlayer.name + " wins!", largeText, winnerPlayer.color)
+            textBox.topleft = textPosition
+            textPosition = (textPosition[0], textPosition[1] + margin)
+            topLevel.append([textSurface, textBox])
 
-def display_help(topLevel,colormap):
-    bigText = pygame.font.Font(None,40)
-    marge=50
-    pos=(200,200)
-    add_text(topLevel,'ESC : exit game',pos,bigText,colormap.white)
-    pos=(pos[0],pos[1]+marge)
-    add_text(topLevel,'n : next phase',pos,bigText,colormap.white)
-    pos=(pos[0],pos[1]+marge)
-    add_text(topLevel,'p : next player turn',pos,bigText,colormap.white)
-    pos=(pos[0],pos[1]+marge)
-    add_text(topLevel,'h : show/hide help menu',pos,bigText,colormap.white)
-    pos=(pos[0],pos[1]+marge)
-    add_text(topLevel,'d : show/hide quest',pos,bigText,colormap.white)
-    pos=(pos[0],pos[1]+marge)
-    add_text(topLevel,'u : use your cards',pos,bigText,colormap.white)
+
+# Adds text to top layer for help screen
+def display_help(topLevel):
+    largeText = pygame.font.Font(None, 40)
+    margin = 50
+    textPosition = (200, 200)
+
+    textSurface, textBox = textArea("h key: Help", largeText, c.white)
+    textBox.topleft = textPosition
+    topLevel.append([textSurface, textBox])
+    textPosition = (textPosition[0],textPosition[1]+margin)
+    
+    textSurface, textBox = textArea("Left/Right Mouse-click : Select/Deselect Territory", largeText, c.white)
+    textBox.topleft = textPosition
+    topLevel.append([textSurface, textBox])
+    textPosition = (textPosition[0], textPosition[1] + margin)
+
+    textSurface, textBox = textArea("Scroll Wheel Up/Down : Increase/Decrease Troop Selection", largeText, c.white)
+    textBox.topleft = textPosition
+    topLevel.append([textSurface, textBox])
+    textPosition = (textPosition[0], textPosition[1] + margin)
+    
+    textSurface, textBox = textArea("n key: Next phase", largeText, c.white)
+    textBox.topleft = textPosition
+    topLevel.append([textSurface, textBox])
+    textPosition = (textPosition[0], textPosition[1] + margin)
+
+    textSurface, textBox = textArea("k key: Save game", largeText, c.white)
+    textBox.topleft = textPosition
+    topLevel.append([textSurface, textBox])
+    textPosition = (textPosition[0], textPosition[1] + margin)
+
+    textSurface, textBox = textArea("l key: Load game", largeText, c.white)
+    textBox.topleft = textPosition
+    topLevel.append([textSurface, textBox])
+    textPosition = (textPosition[0], textPosition[1] + margin)
+
+    textSurface, textBox = textArea("esc key: quit", largeText, c.white)
+    textBox.topleft = textPosition
+    topLevel.append([textSurface, textBox])
+    textPosition = (textPosition[0], textPosition[1] + margin)
+
+
 
 # Player interface text updates
-def display_hud(troopCount,interfaceText,Round,pos,hide):
-    smallText = pygame.font.Font(None,15)
-    marge=20
-    col=[100,400,700,1000]
-    row=pos[1]
+def display_hud(troopCount, interfaceText, Turn, textPosition):
+    smallText = pygame.font.Font(None, 15)
+    margin = 20
+    col = [100, 400, 700, 1000]
+    row = textPosition[1]
     
-    textSurf, textRect = text_objects('Turn : '+str(Round.num), smallText)
-    textRect.topleft = pos
-    interfaceText.append([textSurf, textRect])
-    textSurf, textRect = text_objects('Player : ',smallText)
-    pos=(pos[0],pos[1]+marge)
-    textRect.topleft = pos
-    interfaceText.append([textSurf, textRect])
-    textSurf, textRect = text_objects(Round.players[Round.player_turn-1].name, smallText,Round.players[Round.player_turn-1].color)
-    textRect.topleft = (pos[0]+70,pos[1])
-    interfaceText.append([textSurf, textRect])
-    textSurf, textRect = text_objects('Phase : '+Round.list_phase[Round.phase], smallText)
-    pos=(pos[0],pos[1]+marge)
-    textRect.topleft = pos
-    interfaceText.append([textSurf, textRect])
-    textSurf, textRect = text_objects('Troops per turn : '+str(Round.players[Round.player_turn-1].sbyturn), smallText)
-    pos=(pos[0],pos[1]+marge)
-    textRect.topleft = pos
-    interfaceText.append([textSurf, textRect])
-    textSurf, textRect = text_objects('Troops to deploy : '+str(Round.players[Round.player_turn-1].nb_troupes), smallText)
-    pos=(pos[0],pos[1]+marge)
-    textRect.topleft = pos
-    interfaceText.append([textSurf, textRect])
-    textSurf, textRect = text_objects('# of Selected Troops : '+str(troopCount), smallText)
-    pos=(pos[0],pos[1]+marge)
-    textRect.topleft = pos
-    interfaceText.append([textSurf, textRect])
+    textSurface, textBox = textArea("Round : " + str(Turn.num), smallText)
+    textBox.topleft = textPosition
+    interfaceText.append([textSurface, textBox])
+    
+    textSurface, textBox = textArea("Player : ",smallText)
+    textPosition = (textPosition[0], textPosition[1] + margin)
+    textBox.topleft = textPosition
+    interfaceText.append([textSurface, textBox])
+    
+    textSurface, textBox = textArea(Turn.players[Turn.turnCount -1 ].name, smallText, Turn.players[Turn.turnCount - 1].color)
+    textBox.topleft = (textPosition[0] + 70, textPosition[1])
+    interfaceText.append([textSurface, textBox])
+    
+    textSurface, textBox = textArea("Phase : " + Turn.list_phase[Turn.phase], smallText)
+    textPosition = (textPosition[0],textPosition[1] + margin)
+    textBox.topleft = textPosition
+    interfaceText.append([textSurface, textBox])
+    
+    textSurface, textBox = textArea("Troops per turn : " + str(Turn.players[Turn.turnCount - 1].sbyturn), smallText)
+    textPosition = (textPosition[0], textPosition[1] + margin)
+    textBox.topleft = textPosition
+    interfaceText.append([textSurface, textBox])
+    
+    textSurface, textBox = textArea("Available number of troops to deploy : " + str(Turn.players[Turn.turnCount - 1].nb_troupes), smallText)
+    textPosition = (textPosition[0], textPosition[1] + margin)
+    textBox.topleft = textPosition
+    interfaceText.append([textSurface, textBox])
+    
+    textSurface, textBox = textArea("Number of Selected Troops : " + str(troopCount), smallText)
+    textPosition = (textPosition[0], textPosition[1] + margin)
+    textBox.topleft = textPosition
+    interfaceText.append([textSurface, textBox])
+    
 
-    #Player objectives
-    textSurf, textRect = text_objects('Objective(s) ', smallText)
-    pos=(col[1],row)
-    textRect.topleft = pos
-    interfaceText.append([textSurf, textRect])
-    if hide==False:
-        try:
-            textSurf, textRect = text_objects(str(Round.players[Round.player_turn-1].obj.description), smallText)
-        except AttributeError as e:
-            print (e.args)
-        pos=(col[1],row+marge)
-        textRect.topleft = pos
-        interfaceText.append([textSurf, textRect])
-        try:
-            textSurf, textRect = text_objects('Status : '+str(Round.players[Round.player_turn-1].obj.get_state()), smallText)
-        except AttributeError as e:
-            print (e.args)
-        pos=(col[1],row+2*marge)
-        textRect.topleft = pos
-        interfaceText.append([textSurf, textRect])
+# Updates dice visuals and shows respective losses as a column
+def diceRolls(gameInstance, troopLosses, numDies, xPos, yPos):
+    tempDiceLayer = []
+    for i, j in enumerate(numDies): #Gets correct die sprite and resizes
+        dieSprite = pygame.image.load(c.dicePath + str(j) + ".png").convert_alpha()
+        resizeSprite = pygame.transform.scale(dieSprite, (c.diceSize, c.diceSize))
+        tempDiceLayer.append([resizeSprite, gameInstance.pygameWindow.blit(resizeSprite, (i * c.diceSize * 1.1 + xPos, yPos))])
 
-    # Player cards
-    textSurf, textRect = text_objects('Cards ', smallText)
-    pos=(col[1],row+3*marge)
-    textRect.topleft = pos
-    interfaceText.append([textSurf, textRect])
-    if hide==False:
-        textSurf, textRect = text_objects(str(Round.players[Round.player_turn-1].cards), smallText)
-        pos=(col[1],row+4*marge)
-        textRect.topleft = pos
-        interfaceText.append([textSurf, textRect])
+    for deaths in range(0, troopLosses): #Gets tombstome sprite to represent losses in a row
+        tombstoneSprite = pygame.image.load(c.dicePath + c.deadImage).convert_alpha()
+        resizeSprite = pygame.transform.scale(tombstoneSprite, (c.diceSize, c.diceSize))
+        tempDiceLayer.append([resizeSprite, gameInstance.pygameWindow.blit(resizeSprite, (xPos - (deaths + 1) * c.diceSize * 1.1, yPos))])
 
-    pos=(col[3],row)
-    textSurf, textRect = text_objects('Continent Bonuses', smallText)
-    textRect.topleft = pos
-    interfaceText.append([textSurf, textRect])
-    for i,c in enumerate(Round.map.continents):
-        pos=(col[3],row+(i+1)*marge)
-        textSurf, textRect = text_objects(c.name+' '+str(c.bonus), smallText)
-        textRect.topleft = pos
-        interfaceText.append([textSurf, textRect])
-
-def display_continent(cont,temp_layer,territorySpriteLayer):
-    for p in cont.pays:
-        temp_layer.append(next((x.map_pays for x in territorySpriteLayer if x.id == p.id), None))
-
-def save_game(obj_lst):
-    with open('saved_game', 'wb') as f:
-        pickle.dump(obj_lst, f)
-        print('Game has been saved')
-
-def restore_game(obj_lst):
-    # Getting back the objects:
-    with open('saved_game','rb') as f:
-        obj_lst=pickle.load(f)
-        print('Game has been restored')
+    gameInstance.interfaceDice.extend(tempDiceLayer) 
 
 
-def roll_dices(Win,pertes,number,x,y):
-    L=[]
-    for i,d in enumerate(number):
-        de=pygame.image.load(c.dicePath+str(d)+".png").convert_alpha()
-        resize_de=pygame.transform.scale(de,(c.diceSize,c.diceSize))
-        L.append([resize_de,Win.pygameWindow.blit(resize_de,(i*c.diceSize*1.1+x,y))])
+# Save and restore game state using pickle
+def saveGame(save):
+    with open("saved_game", "wb") as l: #DOES NOT WORK
+        print("Game has been saved")
+        pickle.dump(save, l)
 
-    for i_p in range(0,pertes):
-        deadhead=pygame.image.load(c.dicePath+c.deadImage).convert_alpha()
-        resize_dh=pygame.transform.scale(deadhead,(c.diceSize,c.diceSize))
-        L.append([resize_dh,Win.pygameWindow.blit(resize_dh,(x-(i_p+1)*c.diceSize*1.1,y))])
-    Win.dices.extend(L) 
-
+def loadGame(save):
+    with open("saved_game","rb") as l:
+        print("Save has been loaded")
+        save = pickle.load(l)
 
 
 # Secondary run, used for debugging
-if __name__ == '__main__':
+if __name__ == "__main__":
     from tkinter import *
     import random
     import copy
     
     from Map import Map
     from Player import Player
-    from Goal import Goal
-    from Objective import Objective
     from Card import Card
-    from Round import Round
+    from Turn import Turn
 
     import Constants as c
 
-    # Test map initialization
-    tempMap = Map('Terre')
-    Continents=tempMap.continents
-    T=Round(3,tempMap)
-    T.start_deploy()
-    print(T.distrib_pays(tempMap.pays))
-    T.print_players()
-
-    Colors=ColorMap()
-    T.players[0].color=Colors.dark_purple
-    T.players[1].color=Colors.dark_green
-    T.players[2].color=Colors.dark_red
-##    T.players[3].color=Colors.white
-    # T.players[4].color=Colors.yellow
-    # T.players[5].color=Colors.cian
+    # Run risk with set player params
+    tempMap = Map()
     
-    T.players[0].name='Duncan'
-    T.players[1].name='Isaac'
-    T.players[2].name='Finn'
-##    T.players[3].name='Kevin'
-    # T.players[4].name='Anna'
-    # T.players[5].name='Justin'
+    turn = Turn(3, tempMap) # Turn object created given number players and map object
+    turn.initialTroops() # Sets starting troops, varies depending on number of players
+    turn.distributeTerritories(tempMap.territories) # Distributes territories to players from map list
 
+    Continents = tempMap.continents
+
+    # Initialize players
+    turn.players[0].color = c.red
+    turn.players[1].color = c.green
+    turn.players[2].color = c.blue
+##    turn.players[3].color = c.yellow
+##    turn.players[4].color = c.purple
+##    turn.players[5].color = c.teal
+    
+    turn.players[0].name = "Duncan"
+    turn.players[1].name = "Isaac"
+    turn.players[2].name = "Lily"
+##    turn.players[3].name = "Finn"
+##    turn.players[4].name = "Anna"
+##    turn.players[5].name = "Brianna"
+
+    # Setup and start pygame
     pygame.init()
-    clock = pygame.time.Clock()
     pygameWindow = pygame.display.set_mode((c.windowLength, c.windowWidth))
-    Win=Game(pygameWindow,T)
-    Win.game.nb_joueurs=3
-    Win.game.joueurs=['TestPlayer1','TestPlayer2','TestPlayer3']
-    Win.functions.append(Win.run)
 
-    Win.display()
+    # Create instance of Game to contain risk objects
+    try:
+        gameInstance = Game(pygameWindow, turn)
+        gameInstance.functions.append(gameInstance.run)
+        gameInstance.display()
+    except UnboundLocalError:
+        print("Colorization of map error, restart game and try again!")
+
+
+        
