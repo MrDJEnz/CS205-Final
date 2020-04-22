@@ -414,7 +414,7 @@ def display_help(topLevel):
     margin = 50
     textPosition = (200, 200)
 
-    textSurface, textBox = textArea("h key: Help", largeText, c.white)
+    textSurface, textBox = textArea("'h' key: Help", largeText, c.white)
     textBox.topleft = textPosition
     topLevel.append([textSurface, textBox])
     textPosition = (textPosition[0],textPosition[1]+margin)
@@ -429,22 +429,22 @@ def display_help(topLevel):
     topLevel.append([textSurface, textBox])
     textPosition = (textPosition[0], textPosition[1] + margin)
     
-    textSurface, textBox = textArea("n key: Next phase", largeText, c.white)
+    textSurface, textBox = textArea("'n' key: Next phase", largeText, c.white)
     textBox.topleft = textPosition
     topLevel.append([textSurface, textBox])
     textPosition = (textPosition[0], textPosition[1] + margin)
 
-    textSurface, textBox = textArea("k key: Save game", largeText, c.white)
+    textSurface, textBox = textArea("'k' key: Save game [TODO]", largeText, c.white)
     textBox.topleft = textPosition
     topLevel.append([textSurface, textBox])
     textPosition = (textPosition[0], textPosition[1] + margin)
 
-    textSurface, textBox = textArea("l key: Load game", largeText, c.white)
+    textSurface, textBox = textArea("'l' key: Load game [TODO]", largeText, c.white)
     textBox.topleft = textPosition
     topLevel.append([textSurface, textBox])
     textPosition = (textPosition[0], textPosition[1] + margin)
 
-    textSurface, textBox = textArea("esc key: quit", largeText, c.white)
+    textSurface, textBox = textArea("'esc' key: quit", largeText, c.white)
     textBox.topleft = textPosition
     topLevel.append([textSurface, textBox])
     textPosition = (textPosition[0], textPosition[1] + margin)
