@@ -102,7 +102,9 @@ def game(running, screen, background1, clock):
 ##            territory = pygame.transform.scale(territory, (game_width, game_height))
 ##            screen.blit(territory, (0, 0))
 ##            #####
-            Game = Game()
+                
+            #INIT GAME*
+
             pygame.display.update()
 
 def start():
