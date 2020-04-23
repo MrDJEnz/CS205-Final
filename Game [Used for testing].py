@@ -163,11 +163,36 @@ class Game():
                         print("Ending game!")
                         gameEnd = True
                         
-                    elif event.key == K_s: #Save game and exit
-                        saveGame(self)
-                        
-                    elif event.key == K_r: #Restore saved game
-                        loadGame(self.Turn)
+##                      #SAVING BROKEN... TO BE REMOVED
+##                    elif event.key == K_k: #Save game and exit
+##                        tempSave = []
+##                        tempSave.append(self.map) #Map data saved in state 0
+##                        tempSave.append(self.players) #Player data saved in state 1
+##                        tempSave.append(self.Turn) #Turn data saved in state 2 ..etc
+##                        tempSave.append(self.numTroops)
+##                        tempSave.append(self.selectedTerritory)
+####                        tempSave.append(self.interfaceDice) #surface obj cannot be saved
+##                        tempSave.append(self.functions)
+####                        tempSave.append(self.surfaces) #surface obj cannot be saved
+####                        tempSave.append(self.tempTerritoryList) #surface obj cannot be saved
+####                        tempSave.append(self.textList) #surface obj cannot be saved
+##                        tempSave.append(self.topLevel)
+##                        saveGame(tempSave)
+##
+##        
+##                    elif event.key == K_l: #Restore saved game
+##                        loadData = loadGame(tempSave)
+##                        self.map = loadData[0]
+##                        self.players = loadData[1]
+##                        self.Turn = loadData[2]
+##                        self.numTroops = loadData[3]
+##                        self.selectedTerritory = loadData[4]
+####                        self.interfaceDice = loadData[5]
+##                        self.functions = loadData[5]
+####                        self.surfaces = loadData[7]
+####                        self.tempTerritoryList = loadData[8]
+####                        self.textList = loadData[9]
+##                        self.topLevel = loadData[6]
                         
                     elif event.key == K_n: #Proceed to next round
                         try:
@@ -452,15 +477,15 @@ def display_help(topLevel):
     topLevel.append([textSurface, textBox])
     textPosition = (textPosition[0], textPosition[1] + margin)
 
-    textSurface, textBox = textArea("'k' key: Save game [TODO]", largeText, c.white)
-    textBox.topleft = textPosition
-    topLevel.append([textSurface, textBox])
-    textPosition = (textPosition[0], textPosition[1] + margin)
-
-    textSurface, textBox = textArea("'l' key: Load game [TODO]", largeText, c.white)
-    textBox.topleft = textPosition
-    topLevel.append([textSurface, textBox])
-    textPosition = (textPosition[0], textPosition[1] + margin)
+##    textSurface, textBox = textArea("'k' key: Save game [TODO]", largeText, c.white)
+##    textBox.topleft = textPosition
+##    topLevel.append([textSurface, textBox])
+##    textPosition = (textPosition[0], textPosition[1] + margin)
+##
+##    textSurface, textBox = textArea("'l' key: Load game [TODO]", largeText, c.white)
+##    textBox.topleft = textPosition
+##    topLevel.append([textSurface, textBox])
+##    textPosition = (textPosition[0], textPosition[1] + margin)
 
     textSurface, textBox = textArea("'esc' key: quit", largeText, c.white)
     textBox.topleft = textPosition
@@ -525,17 +550,18 @@ def diceRolls(gameInstance, troopLosses, numDies, xPos, yPos):
 
     gameInstance.interfaceDice.extend(tempDiceLayer) 
 
-
-# Save and restore game state using pickle
-def saveGame(save):
-    with open("saved_game", "wb") as l: #DOES NOT WORK
-        print("Game has been saved")
-        pickle.dump(save, l)
-
-def loadGame(save):
-    with open("saved_game","rb") as l:
-        print("Save has been loaded")
-        save = pickle.load(l)
+#### CANNOT SAVE SURFACE...
+### Save and restore game state using pickle
+##def saveGame(save):
+##    with open("saved_game", "wb") as l: #DOES NOT WORK
+##        print("Game has been saved")
+##        pickle.dump(save, l)
+##
+##
+##def loadGame(save):
+##    with open("saved_game","rb") as l:
+##        print("Save has been loaded")
+##        save = pickle.load(l)
 
 
 # Secondary run, used for debugging
