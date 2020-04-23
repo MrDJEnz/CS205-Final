@@ -65,10 +65,28 @@ class Game():
                 sprite = next((s for s in sprites if s.id == territories), None)
                 setSurfaceColor(sprite, p.color, 255)
 
+
+##    # Displays initial menu
+##    def menu(self):
+##        print(1)
+##
+##        self.surfaces = []
+##        menuBackground = pygame.image.load(c.imagePath + c.menuBackgroundImage).convert()
+##
+##        #Auto resize to fit menuBackground
+##        resize = c.windowLength/menuBackground.get_width()
+##        w = int(resize * menuBackground.get_width())
+##        h = int(resize * menuBackground.get_height())
+##        menuBackground = pygame.transform.scale(menuBackground, (w, h))
+##
+##        self.functions = []
+##        self.surfaces.extend([[menuBackground, (0, 0)]])
+        
+
     # Method initialzes map surface
     def run(self):
         self.surfaces=[]
-        background = pygame.image.load(c.backgroundPath + c.backgroundImage).convert()
+        background = pygame.image.load(c.imagePath + c.backgroundImage).convert()
 
         #Auto resize to fit background
         resize = c.windowLength/background.get_width()
@@ -501,7 +519,7 @@ def diceRolls(gameInstance, troopLosses, numDies, xPos, yPos):
         tempDiceLayer.append([resizeSprite, gameInstance.pygameWindow.blit(resizeSprite, (i * c.diceSize * 1.1 + xPos, yPos))])
 
     for deaths in range(0, troopLosses): #Gets tombstome sprite to represent losses in a row
-        tombstoneSprite = pygame.image.load(c.dicePath + c.deadImage).convert_alpha()
+        tombstoneSprite = pygame.image.load(c.imagePath + c.deadImage).convert_alpha()
         resizeSprite = pygame.transform.scale(tombstoneSprite, (c.diceSize, c.diceSize))
         tempDiceLayer.append([resizeSprite, gameInstance.pygameWindow.blit(resizeSprite, (xPos - (deaths + 1) * c.diceSize * 1.1, yPos))])
 
@@ -561,9 +579,22 @@ if __name__ == "__main__":
     pygame.init()
     pygameWindow = pygame.display.set_mode((c.windowLength, c.windowWidth))
 
+
+        
+
+
+
+
     # Create instance of Game to contain risk objects
     try:
         gameInstance = Game(pygameWindow, turn)
+        
+##        # User in game menu until button click
+##        displayFlag = False
+##        while (not displayFlag):
+##            gameInstance.functions.append(gameInstance.menu)
+##            gameInstance.display()
+            
         gameInstance.functions.append(gameInstance.run)
         gameInstance.display()
     except UnboundLocalError:
