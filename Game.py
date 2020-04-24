@@ -592,9 +592,9 @@ if __name__ == "__main__":
     Continents = tempMap.continents
 
     # Initialize players
-    turn.players[0].color = c.red
-    turn.players[1].color = c.green
-    turn.players[2].color = c.blue
+    turn.players[0].color = c.riskRed #c.red
+    turn.players[1].color = c.riskGreen #c.green
+    turn.players[2].color = c.riskBlue #c.blue
 ##    turn.players[3].color = c.yellow
 ##    turn.players[4].color = c.purple
 ##    turn.players[5].color = c.teal

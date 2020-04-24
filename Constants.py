@@ -33,6 +33,13 @@ teal = (0,255,255)
 white = (255, 255, 255)
 black = (0, 0, 0)
 
+#darkened counterparts for visual athestetics (-55, +20, +20)
+riskRed = (200,20,20)
+riskGreen = (20,200, 2)
+riskBlue = (20,20,200)
+riskYellow = (200,200,20)
+
+
 diceSize = 25
 windowLength = 1300
 windowWidth = 800

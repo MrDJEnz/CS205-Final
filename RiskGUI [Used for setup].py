@@ -90,6 +90,44 @@ def menu(MENUSTAT, screen, clock, background1):
         formattedExitButton = pygame.transform.scale(exitButton, (100, 50)) #size change
 
 ##        message_to_screen("Players: ", red, screen)
+
+
+        #button stuff
+
+##        # Creates clickable area for mouse interactions and overlays with text
+##def button(txt, xPos, yPos, width, height, ic, ac, command = None):
+##    mouse = pygame.mouse.get_pos()
+##    click = pygame.mouse.get_pressed()
+##    if xPos + width > mouse[0] > xPos and yPos + height > mouse[1] > yPos:
+##        pygame.draw.rect(pygameWindow, ac,(xPos, yPos, width, height))
+##        if click[0] == 1 and action != None:
+##            Win.functions.append(action)
+##    else:
+##        pygame.draw.rect(pygameWindow, ic,(xPos, yPos, width, height))
+##
+##    smallText = pygame.font.Font(None, 20)
+##    textSurface, textBox = textArea(txt, smallText)
+##    textBox.center = ((xPos + (w/2)), (yPos + (height/2)))
+##    
+##    pygameWindow.blit(textSurface, textBox)
+
+
+        
+##               # Handling mouse-clicks/scrolls                
+##                elif event.type == MOUSEBUTTONDOWN:
+##                    try:
+##                        if event.button == 3: #Right mouse-click to unselect (selected) territory
+##                            self.tempTerritoryList = []
+##                            selectFlag = False
+##                            selectedTerritory = 0
+##                            
+##                        elif event.button == 4: #Scroll mousewheel down to increase selected troops
+##                            self.troopCount += 1
+##                            
+##                        elif event.button == 5: #Scroll mousewheel down to decrease selected troops
+##                            if self.troopCount > 0:
+##                                self.troopCount -= 1
+    
         
         screen.blit(menu, (animateMenuX, 0)) #add to layer starting left top corner position
         screen.blit(formattedPlayButton, (c.windowLength - int(c.windowLength/2) - 250, c.windowWidth - int(c.windowWidth/5)))
