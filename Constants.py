@@ -10,8 +10,9 @@ imagePath = "src/"
 mapPath = "src/Territory Sprites/"
 dicePath = "src/Dice Sprites/"
 
-windowLogo = "logo.jpg"##
-menuBackgroundImage = "menu background.jpg"##
+windowLogo = "logo.jpg"
+menuBackgroundImage = "menu background.jpg"
+loadingImage = "loading.png"
 
 mapImages = "basemap.png"
 backgroundImage ="background.jpg"
@@ -33,7 +34,7 @@ white = (255, 255, 255)
 black = (0, 0, 0)
 
 diceSize = 25
-windowLength = 1280
+windowLength = 1300
 windowWidth = 800
 
 

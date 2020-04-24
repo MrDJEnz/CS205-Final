@@ -411,7 +411,7 @@ def button(txt, xPos, yPos, width, height, ic, ac, command = None):
     else:
         pygame.draw.rect(pygameWindow, ic,(xPos, yPos, width, height))
 
-    smallText = pygame.font.Font(None, 15)
+    smallText = pygame.font.Font(None, 20)
     textSurface, textBox = textArea(txt, smallText)
     textBox.center = ((xPos + (w/2)), (yPos + (height/2)))
     
@@ -429,7 +429,7 @@ def setSurfaceColor(sprite, color, alpha):
 
 # Update troop visual count
 def troopDisplay(textList, sprites, Map):
-    smallText = pygame.font.Font(None, 13)
+    smallText = pygame.font.Font(None, 25)
     for sprite in sprites:
         territories = Map.territories[sprite.id-1]
         textSurface, textBox = textArea(str(territories.nb_troupes), smallText)
@@ -439,7 +439,7 @@ def troopDisplay(textList, sprites, Map):
 
 # Player victory screen if a player completes goals
 def display_win(topLevel, players):
-    largeText = pygame.font.Font(None, 35)
+    largeText = pygame.font.Font(None, 75)
     margin = 50
     textPosition = (200, 200)
     for p in players:
@@ -453,7 +453,7 @@ def display_win(topLevel, players):
 
 # Adds text to top layer for help screen
 def display_help(topLevel):
-    largeText = pygame.font.Font(None, 40)
+    largeText = pygame.font.Font(None, 50)
     margin = 50
     textPosition = (200, 200)
 
@@ -496,41 +496,46 @@ def display_help(topLevel):
 
 # Player interface text updates
 def display_hud(troopCount, interfaceText, Turn, textPosition):
-    smallText = pygame.font.Font(None, 15)
+    smallText = pygame.font.Font(None, 25)
     margin = 20
     col = [100, 400, 700, 1000]
     row = textPosition[1]
-    
+
+
+    # FIRTS COLUMN TEXT        ... position carries over to next
     textSurface, textBox = textArea("Round : " + str(Turn.num), smallText)
+    textBox.topleft = (textPosition[0], textPosition[1])
+    interfaceText.append([textSurface, textBox])
+
+    textSurface, textBox = textArea("Phase : " + Turn.list_phase[Turn.phase], smallText)
+    textPosition = (textPosition[0], textPosition[1] + margin + margin)
     textBox.topleft = textPosition
     interfaceText.append([textSurface, textBox])
     
     textSurface, textBox = textArea("Player : ",smallText)
-    textPosition = (textPosition[0], textPosition[1] + margin)
+    textPosition = (textPosition[0], textPosition[1] + margin + margin)
     textBox.topleft = textPosition
     interfaceText.append([textSurface, textBox])
-    
+
+    #name value
     textSurface, textBox = textArea(Turn.players[Turn.turnCount -1 ].name, smallText, Turn.players[Turn.turnCount - 1].color)
     textBox.topleft = (textPosition[0] + 70, textPosition[1])
     interfaceText.append([textSurface, textBox])
     
-    textSurface, textBox = textArea("Phase : " + Turn.list_phase[Turn.phase], smallText)
-    textPosition = (textPosition[0],textPosition[1] + margin)
-    textBox.topleft = textPosition
-    interfaceText.append([textSurface, textBox])
-    
-    textSurface, textBox = textArea("Troops per turn : " + str(Turn.players[Turn.turnCount - 1].sbyturn), smallText)
-    textPosition = (textPosition[0], textPosition[1] + margin)
+
+    # MIDDLE COLUMN TEXT    
+    textSurface, textBox = textArea("Number of Selected Troops : " + str(troopCount), smallText)
+    textPosition = (textPosition[0] + 200, textPosition[1])
     textBox.topleft = textPosition
     interfaceText.append([textSurface, textBox])
     
     textSurface, textBox = textArea("Available number of troops to deploy : " + str(Turn.players[Turn.turnCount - 1].nb_troupes), smallText)
-    textPosition = (textPosition[0], textPosition[1] + margin)
+    textPosition = (textPosition[0], textPosition[1] - margin - margin)
     textBox.topleft = textPosition
     interfaceText.append([textSurface, textBox])
-    
-    textSurface, textBox = textArea("Number of Selected Troops : " + str(troopCount), smallText)
-    textPosition = (textPosition[0], textPosition[1] + margin)
+
+    textSurface, textBox = textArea("Troops per turn : " + str(Turn.players[Turn.turnCount - 1].sbyturn), smallText)
+    textPosition = (textPosition[0], textPosition[1] - margin - margin)
     textBox.topleft = textPosition
     interfaceText.append([textSurface, textBox])
     

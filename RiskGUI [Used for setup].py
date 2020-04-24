@@ -38,36 +38,70 @@ dark_blue = (0, 0, 170)
 #####
 
 font = pygame.font.SysFont(None, 50)
-game_height = 1080
-game_width = 1920
 
+fpsClock = pygame.time.Clock()
 
 
 
 def message_to_screen(msg,color, gameDisplay):
     screen_text = font.render(msg, True, color)
-    gameDisplay.blit(screen_text, [game_width/2, game_height/2])
+    gameDisplay.blit(screen_text, [c.windowLength/2, c.windowWidth/2])
 
 def menu(MENUSTAT, screen, clock, background1):
+    playButton = pygame.image.load(c.imagePath + c.playButton)
+    helpButton = pygame.image.load(c.imagePath + c.helpButton)
+    exitButton = pygame.image.load(c.imagePath + c.exitButton)
+
+    mouse = pygame.mouse.get_pos() #get mouse position
+
+    #add button images
+
+    animateMenuX = 0 #start menu pos at x    
     while MENUSTAT == True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 quit()
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 1:
+
+                    #on mouse click check position
+                    #if mouse == ((100, 200)):
                     print("Moving to running game")
                     menu = False
                     running = True
+
+                    #prep load screen while game inits
+                    loadScreen = pygame.image.load(c.imagePath + c.loadingImage)
+                    formattedLoadScreen = pygame.transform.scale(loadScreen, (c.windowLength, c.windowWidth))
+                    screen.blit(formattedLoadScreen, (0, 0))
+                    pygame.display.update() #update visuals
+                        
                     game(running, screen, background1, clock)
 
         screen.fill((0, 0, 0))
         clock.tick(30)
         black = (0, 0, 0)
-        menu = pygame.transform.scale(background1, (game_width, game_height))
-        message_to_screen("Players: ", red, screen)
-        screen.blit(menu, (0, 0))
+        
+        #menu animation
+        menu = pygame.transform.scale(background1, (int(c.windowLength * 1.3), c.windowWidth)) #zoom in on bg
 
-        pygame.display.update()
+        formattedPlayButton = pygame.transform.scale(playButton, (100, 50)) #size change
+        formattedHelpButton = pygame.transform.scale(helpButton, (100, 50)) #size change
+        formattedExitButton = pygame.transform.scale(exitButton, (100, 50)) #size change
+
+##        message_to_screen("Players: ", red, screen)
+        
+        screen.blit(menu, (animateMenuX, 0)) #add to layer starting left top corner position
+        screen.blit(formattedPlayButton, (c.windowLength - int(c.windowLength/2) - 250, c.windowWidth - int(c.windowWidth/5)))
+        screen.blit(formattedHelpButton, (c.windowLength - int(c.windowLength/2), c.windowWidth - int(c.windowWidth/5))) #middle
+        screen.blit(formattedExitButton, (c.windowLength - int(c.windowLength/2) + 250, c.windowWidth - int(c.windowWidth/5)))
+
+        pygame.display.update() #update visuals
+        fpsClock.tick(30)
+        
+        animateMenuX -= 0.5
+        if animateMenuX <= -400:
+            animateMenuX = 0
 
 
 def game(running, screen, background1, clock):
@@ -101,11 +135,7 @@ def game(running, screen, background1, clock):
     pygame.init()
     pygameWindow = pygame.display.set_mode((c.windowLength, c.windowWidth))
 
-
-        
-
-
-
+    
 
     # Create instance of Game to contain risk objects
     try:
@@ -126,7 +156,7 @@ def game(running, screen, background1, clock):
 ##    # display.blit(background, (0,0)) #sets first green background element
 ##    i = 0
 ##    # loop continuously check and updates "event"
-##    screen = pygame.display.set_mode((game_width, game_height))
+##    screen = pygame.display.set_mode((c.windowLength, c.windowWidth))
 ##    while running:
 ##        # screen.fill((0, 0, 0))
 ##        #
@@ -161,7 +191,7 @@ def game(running, screen, background1, clock):
 ##                sys.exit()
 ####            ######
 ####            territory = pygame.image.load("src/" + str(i) + ".png").convert()
-####            territory = pygame.transform.scale(territory, (game_width, game_height))
+####            territory = pygame.transform.scale(territory, (c.windowLength, c.windowWidth))
 ####            screen.blit(territory, (0, 0))
 ####            #####
 ##                
