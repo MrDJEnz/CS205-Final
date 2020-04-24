@@ -77,17 +77,16 @@ def menu(MENUSTAT, screen, clock, background1):
     #maybe need origionalSurface.convert_alpha()
 ##coloredSurface = origSurface.copy()
 ##color_surface(coloredSurface, 120, 78, 240)
-
     animateMenuX = 0 #start menu pos at x    
     while MENUSTAT == True:
         mouse = pygame.mouse.get_pos() #get mouse position
 
-        for event in pygame.event.get():            
+        for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 quit()
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 #on right click on play
-                if (event.button == 1) and ((c.windowLength - int(c.windowLength/2) - 250) < currentMouseX < (c.windowLength - int(c.windowLength/2) - 150)) and ((c.windowWidth - int(c.windowWidth/5)) < currentMouseY < (c.windowWidth - int(c.windowWidth/5) + 50)): 
+                if (event.button == 1) and ((c.windowLength - int(c.windowLength/2) - 250) < currentMouseX < (c.windowLength - int(c.windowLength/2) - 150)) and ((c.windowWidth - int(c.windowWidth/5)) < currentMouseY < (c.windowWidth - int(c.windowWidth/5) + 50)):
                     print("Starting game ...")
                     menu = False
                     running = True
@@ -97,19 +96,19 @@ def menu(MENUSTAT, screen, clock, background1):
                     formattedLoadScreen = pygame.transform.scale(loadScreen, (c.windowLength, c.windowWidth))
                     screen.blit(formattedLoadScreen, (0, 0))
                     pygame.display.update() #update visuals
-                        
+
                     game(running, screen, background1, clock)
-                    
+
                 #on right click on help (OPTIONS should rename latre)
-                elif (event.button == 1) and ((c.windowLength - int(c.windowLength/2)) < currentMouseX < (c.windowLength - int(c.windowLength/2) + 100)) and ((c.windowWidth - int(c.windowWidth/5)) < currentMouseY < (c.windowWidth - int(c.windowWidth/5) + 50)): 
+                elif (event.button == 1) and ((c.windowLength - int(c.windowLength/2)) < currentMouseX < (c.windowLength - int(c.windowLength/2) + 100)) and ((c.windowWidth - int(c.windowWidth/5)) < currentMouseY < (c.windowWidth - int(c.windowWidth/5) + 50)):
                     print("opening options ...")
                     #menu = False
                     #running = True
 
                     #show help/setuup screen ? then go back to menu screen
-                
+
                 #on right click on exit
-                elif (event.button == 1) and ((c.windowLength - int(c.windowLength/2) + 250) < currentMouseX < (c.windowLength - int(c.windowLength/2) + 350)) and ((c.windowWidth - int(c.windowWidth/5)) < currentMouseY < (c.windowWidth - int(c.windowWidth/5) + 50)): 
+                elif (event.button == 1) and ((c.windowLength - int(c.windowLength/2) + 250) < currentMouseX < (c.windowLength - int(c.windowLength/2) + 350)) and ((c.windowWidth - int(c.windowWidth/5)) < currentMouseY < (c.windowWidth - int(c.windowWidth/5) + 50)):
                     print("Shutting down ...")
                     os._exit(0) #clean exit
 
