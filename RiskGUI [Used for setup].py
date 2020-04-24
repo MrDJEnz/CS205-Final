@@ -6,7 +6,7 @@ from pygame.locals import *
 import time
 #https://commons.wikimedia.org/wiki/File:Risk_board.svg
 #paths to draw islands
-import Game
+#import Game
 import Constants as c
 
 pygame.init()

@@ -99,11 +99,14 @@ class Game():
         resize = c.windowLength/worldMap.get_width()
         w = int(resize * worldMap.get_width())
         h = int(resize * worldMap.get_height())
+
+        print(w)
+        print(h)
         worldMap = pygame.transform.scale(worldMap, (w, h))
 
         #Player HUD
         barre = pygame.image.load(c.imagePath + c.bareImage).convert_alpha()
-        barre = pygame.transform.scale(barre, (c.windowLength, c.windowWidth - h))
+        #barre = pygame.transform.scale(barre, (c.windowLength, c.windowWidth - h))
 
         self.functions = []
         self.surfaces.extend([[background, (0, 0)], [barre, (0, h)], [worldMap, (0, 0)]])

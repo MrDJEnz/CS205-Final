@@ -8,11 +8,13 @@
 
 imagePath = "src/"
 mapPath = "src/Territory Sprites/"
+# mapPath = "src/map Sprites/"
 dicePath = "src/Dice Sprites/"
 
 windowLogo = "logo.jpg"##
 menuBackgroundImage = "menu background.jpg"##
 
+# mapImages = "Risk_board.jpg"##
 mapImages = "basemap.png"
 backgroundImage ="background.jpg"
 bareImage = "ui.png"
@@ -33,7 +35,7 @@ white = (255, 255, 255)
 black = (0, 0, 0)
 
 diceSize = 25
-windowLength = 1280
+windowLength = 1200
 windowWidth = 800
 
 
