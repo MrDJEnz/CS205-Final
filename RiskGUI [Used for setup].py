@@ -1,4 +1,5 @@
 import sys
+import os
 import pygame #may need to install using (pip install pygame)
 import glob
 import  pickle
@@ -47,26 +48,47 @@ def message_to_screen(msg,color, gameDisplay):
     screen_text = font.render(msg, True, color)
     gameDisplay.blit(screen_text, [c.windowLength/2, c.windowWidth/2])
 
+# highlight surfaces making buttons interactive
+def colorSurface(surface, r, g, b):
+    arr = pygame.surfarray.pixels3d(surface)
+    arr[:,:,0] = red
+    arr[:,:,1] = green
+    arr[:,:,2] = blue
+
 def menu(MENUSTAT, screen, clock, background1):
+    #origional
     playButton = pygame.image.load(c.imagePath + c.playButton)
+##    playButton = playButton.convert_alpha()
+##    playButtonAlt = pygame.Surface(playButton.get_rect().size, pygame.SRCALPHA)
+##    playButtonAlt.fill((200, 200, 200, 100)) #r, g, b, alpha
+    
     helpButton = pygame.image.load(c.imagePath + c.helpButton)
     exitButton = pygame.image.load(c.imagePath + c.exitButton)
+    
+    
+##    #highlighted
+##    playButtonAlt = playButton.copy()
+##    colorSurface(playButtonAlt, 120, 78, 240)
+##    
+##    helpButtonAlt = helpButton.copy()
+##    
+##    exitButtonAlt = exitButton.copy()
 
-    mouse = pygame.mouse.get_pos() #get mouse position
-
-    #add button images
+    #maybe need origionalSurface.convert_alpha()
+##coloredSurface = origSurface.copy()
+##color_surface(coloredSurface, 120, 78, 240)
 
     animateMenuX = 0 #start menu pos at x    
     while MENUSTAT == True:
-        for event in pygame.event.get():
+        mouse = pygame.mouse.get_pos() #get mouse position
+
+        for event in pygame.event.get():            
             if event.type == pygame.QUIT:
                 quit()
             elif event.type == pygame.MOUSEBUTTONDOWN:
-                if event.button == 1:
-
-                    #on mouse click check position
-                    #if mouse == ((100, 200)):
-                    print("Moving to running game")
+                #on right click on play
+                if (event.button == 1) and ((c.windowLength - int(c.windowLength/2) - 250) < currentMouseX < (c.windowLength - int(c.windowLength/2) - 150)) and ((c.windowWidth - int(c.windowWidth/5)) < currentMouseY < (c.windowWidth - int(c.windowWidth/5) + 50)): 
+                    print("Starting game ...")
                     menu = False
                     running = True
 
@@ -77,11 +99,25 @@ def menu(MENUSTAT, screen, clock, background1):
                     pygame.display.update() #update visuals
                         
                     game(running, screen, background1, clock)
+                    
+                #on right click on help (OPTIONS should rename latre)
+                elif (event.button == 1) and ((c.windowLength - int(c.windowLength/2)) < currentMouseX < (c.windowLength - int(c.windowLength/2) + 100)) and ((c.windowWidth - int(c.windowWidth/5)) < currentMouseY < (c.windowWidth - int(c.windowWidth/5) + 50)): 
+                    print("opening options ...")
+                    #menu = False
+                    #running = True
+
+                    #show help/setuup screen ? then go back to menu screen
+                
+                #on right click on exit
+                elif (event.button == 1) and ((c.windowLength - int(c.windowLength/2) + 250) < currentMouseX < (c.windowLength - int(c.windowLength/2) + 350)) and ((c.windowWidth - int(c.windowWidth/5)) < currentMouseY < (c.windowWidth - int(c.windowWidth/5) + 50)): 
+                    print("Shutting down ...")
+                    os._exit(0) #clean exit
+
 
         screen.fill((0, 0, 0))
         clock.tick(30)
         black = (0, 0, 0)
-        
+
         #menu animation
         menu = pygame.transform.scale(background1, (int(c.windowLength * 1.3), c.windowWidth)) #zoom in on bg
 
@@ -91,48 +127,25 @@ def menu(MENUSTAT, screen, clock, background1):
 
 ##        message_to_screen("Players: ", red, screen)
 
-
-        #button stuff
-
-##        # Creates clickable area for mouse interactions and overlays with text
-##def button(txt, xPos, yPos, width, height, ic, ac, command = None):
-##    mouse = pygame.mouse.get_pos()
-##    click = pygame.mouse.get_pressed()
-##    if xPos + width > mouse[0] > xPos and yPos + height > mouse[1] > yPos:
-##        pygame.draw.rect(pygameWindow, ac,(xPos, yPos, width, height))
-##        if click[0] == 1 and action != None:
-##            Win.functions.append(action)
-##    else:
-##        pygame.draw.rect(pygameWindow, ic,(xPos, yPos, width, height))
-##
-##    smallText = pygame.font.Font(None, 20)
-##    textSurface, textBox = textArea(txt, smallText)
-##    textBox.center = ((xPos + (w/2)), (yPos + (height/2)))
-##    
-##    pygameWindow.blit(textSurface, textBox)
-
-
-        
-##               # Handling mouse-clicks/scrolls                
-##                elif event.type == MOUSEBUTTONDOWN:
-##                    try:
-##                        if event.button == 3: #Right mouse-click to unselect (selected) territory
-##                            self.tempTerritoryList = []
-##                            selectFlag = False
-##                            selectedTerritory = 0
-##                            
-##                        elif event.button == 4: #Scroll mousewheel down to increase selected troops
-##                            self.troopCount += 1
-##                            
-##                        elif event.button == 5: #Scroll mousewheel down to decrease selected troops
-##                            if self.troopCount > 0:
-##                                self.troopCount -= 1
-    
-        
         screen.blit(menu, (animateMenuX, 0)) #add to layer starting left top corner position
         screen.blit(formattedPlayButton, (c.windowLength - int(c.windowLength/2) - 250, c.windowWidth - int(c.windowWidth/5)))
         screen.blit(formattedHelpButton, (c.windowLength - int(c.windowLength/2), c.windowWidth - int(c.windowWidth/5))) #middle
         screen.blit(formattedExitButton, (c.windowLength - int(c.windowLength/2) + 250, c.windowWidth - int(c.windowWidth/5)))
+        
+
+        # check mouse pos and highlight button when mouse hovers above
+        currentMouseX = mouse[0]
+        currentMouseY = mouse[1]
+
+        #if lowerbound < mousepos < higher bound and for y.. do button
+        #difference is button size formatted
+        if ((c.windowLength - int(c.windowLength/2) - 250) < currentMouseX < (c.windowLength - int(c.windowLength/2) - 150)) and ((c.windowWidth - int(c.windowWidth/5)) < currentMouseY < (c.windowWidth - int(c.windowWidth/5) + 50)):
+            screen.blit(formattedPlayButton, (c.windowLength - int(c.windowLength/2) - 250, c.windowWidth - int(c.windowWidth/5)), special_flags = pygame.BLEND_RGBA_MULT)
+        elif ((c.windowLength - int(c.windowLength/2)) < currentMouseX < (c.windowLength - int(c.windowLength/2) + 100)) and ((c.windowWidth - int(c.windowWidth/5)) < currentMouseY < (c.windowWidth - int(c.windowWidth/5) + 50)):
+            screen.blit(formattedHelpButton, (c.windowLength - int(c.windowLength/2), c.windowWidth - int(c.windowWidth/5)), special_flags = pygame.BLEND_RGBA_MULT) #middle
+        elif ((c.windowLength - int(c.windowLength/2) + 250) < currentMouseX < (c.windowLength - int(c.windowLength/2) + 350)) and ((c.windowWidth - int(c.windowWidth/5)) < currentMouseY < (c.windowWidth - int(c.windowWidth/5) + 50)):
+            screen.blit(formattedExitButton, (c.windowLength - int(c.windowLength/2) + 250, c.windowWidth - int(c.windowWidth/5)), special_flags = pygame.BLEND_RGBA_MULT)
+
 
         pygame.display.update() #update visuals
         fpsClock.tick(30)
