@@ -19,6 +19,12 @@ class Menu():
         self.fpsClock = pygame.time.Clock()
 
 
+    # Returns information for text handling
+    def textArea(self, text, font, color=(0, 0, 0)):
+        textSurface = font.render(text, True, color)
+        return textSurface, textSurface.get_rect()
+
+
     def formatButtons(self, menu, animateMenuX):
         formattedPlayButton = pygame.transform.scale(self.playButton, (100, 50))  # size change
         formattedHelpButton = pygame.transform.scale(self.helpButton, (100, 50))  # size change
@@ -61,6 +67,66 @@ class Menu():
                              (c.windowLength - int(c.windowLength / 2) + 250, c.windowWidth - int(c.windowWidth / 5)),
                              special_flags=pygame.BLEND_RGBA_MULT)
 
+    def settings(self, SETTINGSTAT):
+        # flag true for options
+        pygame.init()
+        while SETTINGSTAT == True:
+            mouse = pygame.mouse.get_pos()
+            currentMouseX = mouse[0]
+            currentMouseY = mouse[1]
+
+            # button visual and function
+            for event in pygame.event.get():
+                if event.type == pygame.MOUSEBUTTONDOWN:
+
+                    # on right click on help (OPTIONS should rename latre)
+                    if (event.button == 1) and ((c.windowLength - int(c.windowLength / 2)) < currentMouseX < (
+                            c.windowLength - int(c.windowLength / 2) + 100)) and (
+                            (c.windowWidth - int(c.windowWidth / 5)) < currentMouseY < (
+                            c.windowWidth - int(c.windowWidth / 5) + 50)):
+                        print("returning to menu")
+                        SETTINGSTAT = False
+
+            # load settings screen
+            settingsScreen = pygame.image.load(c.imagePath + c.settingsImage)
+            formattedSettingsScreen = pygame.transform.scale(settingsScreen, (c.windowLength, c.windowWidth))
+            formattedExitButton = pygame.transform.scale(self.helpButton, (100, 50))  # size change
+
+            self.screen.blit(formattedSettingsScreen, (0, 0))
+
+            # create text
+            margin = 100
+            tempText = pygame.font.Font(None, 50)
+            textPosition = (int(c.windowLength / 5), margin)
+            textSurface, textBox = self.textArea("In Risk you must conquer all the territories to win.", tempText, c.white)
+            textBox.topleft = textPosition
+            self.screen.blit(textSurface, textBox)
+
+            textPosition = (int(c.windowLength / 5), margin + 100)
+            textSurface, textBox = self.textArea("Players will be given set troops and starting territories.", tempText,
+                                            c.white)
+            textBox.topleft = textPosition
+            self.screen.blit(textSurface, textBox)
+
+            textPosition = (int(c.windowLength / 5), margin + 200)
+            textSurface, textBox = self.textArea("Use the 'h' key ingame for control help ... Good Luck.", tempText, c.white)
+            textBox.topleft = textPosition
+            self.screen.blit(textSurface, textBox)
+
+            if ((c.windowLength - int(c.windowLength / 2)) < currentMouseX < (
+                    c.windowLength - int(c.windowLength / 2) + 100)) and (
+                    (c.windowWidth - int(c.windowWidth / 5)) < currentMouseY < (
+                    c.windowWidth - int(c.windowWidth / 5) + 50)):
+                self.screen.blit(formattedExitButton,
+                            (c.windowLength - int(c.windowLength / 2), c.windowWidth - int(c.windowWidth / 5)),
+                            special_flags=pygame.BLEND_RGBA_MULT)  # middle
+            else:
+                self.screen.blit(formattedExitButton, (
+                c.windowLength - int(c.windowLength / 2), c.windowWidth - int(c.windowWidth / 5)))  # middle
+
+            pygame.display.update()  # update visuals
+            self.fpsClock.tick(30)
+
     def eventGetter(self, currentMouseX, currentMouseY, numPlayers):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -82,7 +148,7 @@ class Menu():
                     pygame.display.update()  # update visuals
                     # TODO run the game
                     sGame = SetupGame(running, self.screen, self.background1, self.clock)
-                    sGame.startGame(numPlayers)
+                    sGame.startGame(numPlayers, running, self.screen, self.background1, self.clock)
                     # game(running, screen, background1, clock)
 
                 # on right click on help (OPTIONS should rename latre)
@@ -91,6 +157,7 @@ class Menu():
                         (c.windowWidth - int(c.windowWidth / 5)) < currentMouseY < (
                         c.windowWidth - int(c.windowWidth / 5) + 50)):
                     print("opening options ...")
+                    self.settings(True)
                     # menu = False
                     # running = True
 
@@ -114,7 +181,7 @@ class Menu():
             currentMouseX = mouse[0]
             currentMouseY = mouse[1]
 
-            self.eventGetter(currentMouseX, currentMouseY, numPlayers)
+
 
             self.screen.fill((0, 0, 0))
             self.clock.tick(30)
@@ -125,6 +192,8 @@ class Menu():
             formattedPlayButton, formattedHelpButton, formattedExitButton = self.formatButtons(menu, animateMenuX)
 
             self.placeButtons(currentMouseX, currentMouseY, formattedPlayButton, formattedHelpButton, formattedExitButton)
+
+            self.eventGetter(currentMouseX, currentMouseY, numPlayers)
 
             pygame.display.update()  # update visuals
             self.fpsClock.tick(30)

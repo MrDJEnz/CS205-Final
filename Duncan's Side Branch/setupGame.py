@@ -20,7 +20,8 @@ class SetupGame():
         textSurface = font.render(text, True, color)
         return textSurface, textSurface.get_rect()
 
-    def startGame(self, numPlayers):
+    def startGame(self, numPlayers, running, screen, background, clock):
+
 
         newMap = Map()
 
@@ -54,6 +55,10 @@ class SetupGame():
         except UnboundLocalError as e:
             print(e)
             print("Colorization of map error, restart game and try again!")
+            print("Try moving the moving your mouse cursor onto the man's nose while you wait?")
+
+            sGame = SetupGame(running, screen, background, clock)
+            sGame.startGame(numPlayers, running, screen, background, clock)
 
 
 

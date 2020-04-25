@@ -14,6 +14,7 @@ dicePath = "src/Dice Sprites/"
 windowLogo = "logo.jpg"
 menuBackgroundImage = "menu background.jpg"
 loadingImage = "loading.png"
+settingsImage = "settingsImage.jpg"
 
 mapImages = "basemap.png"
 # mapImages = "Risk_board.jpg"
@@ -47,7 +48,7 @@ diceSize = 50
 # windowLength = 1200
 # windowWidth = 800
 
-windowLength = 1280
-windowWidth = 720
+windowLength = 1920
+windowWidth = int(windowLength/1.5)
 
 
