@@ -167,9 +167,9 @@ def game(running, screen, background1, clock):
     Continents = tempMap.continents
 
     # Initialize players
-    turn.players[0].color = c.red
-    turn.players[1].color = c.green
-    turn.players[2].color = c.blue
+    turn.players[0].color = c.riskRed
+    turn.players[1].color = c.riskGreen
+    turn.players[2].color = c.riskBlue
 ##    turn.players[3].color = c.yellow
 ##    turn.players[4].color = c.purple
 ##    turn.players[5].color = c.teal
@@ -191,63 +191,11 @@ def game(running, screen, background1, clock):
     try:
         gameInstance = Game(pygameWindow, turn)
         
-##        # User in game menu until button click
-##        displayFlag = False
-##        while (not displayFlag):
-##            gameInstance.functions.append(gameInstance.menu)
-##            gameInstance.display()
-            
         gameInstance.functions.append(gameInstance.run)
         gameInstance.display()
     except UnboundLocalError:
         print("Colorization of map error, restart game and try again!")
 
-
-##    # display.blit(background, (0,0)) #sets first green background element
-##    i = 0
-##    # loop continuously check and updates "event"
-##    screen = pygame.display.set_mode((c.windowLength, c.windowWidth))
-##    while running:
-##        # screen.fill((0, 0, 0))
-##        #
-##        # # screen.blit(background1)
-##
-##        for event in pygame.event.get():  # get and process events
-##            # if freshStart == True: #display map initialization animation
-##            # t1 = pygame.image.load("map/green.jpg").convert()
-##            # t1 = pygame.transform.scale(background, (720, 450))
-##            # i = 0
-##            ## for i in range(41):
-##            ##    territory = pygame.image.load("map/" + str(i) + ".png").convert()
-##            ##    territory = pygame.transform.scale(territory, (70, 40))
-##            ##    display.blit(territory, (70,40))
-##            ##     i += 1
-##
-##            #   freshStart = False
-##
-##            if event.type == pygame.MOUSEBUTTONDOWN:  # check of user pressed button
-##                print("mouse down, displaying country", str(i))
-##                i += 1
-##                # territory = pygame.image.load("map/" + str(i) + ".png").convert()
-##                # territory = pygame.transform.scale(territory, (70, 40))
-##                # i += 1
-##            elif event.type == pygame.KEYDOWN:
-##                if event.key == pygame.K_p:
-##                    MENUSTAT = True
-##                    menu(MENUSTAT, screen, clock, background1)
-##
-##            if event.type == QUIT:  # check if user wants to quit
-##                pygame.quit()
-##                sys.exit()
-####            ######
-####            territory = pygame.image.load("src/" + str(i) + ".png").convert()
-####            territory = pygame.transform.scale(territory, (c.windowLength, c.windowWidth))
-####            screen.blit(territory, (0, 0))
-####            #####
-##                
-##            #INIT GAME*
-##
-##            pygame.display.update()
 
 def start():
 

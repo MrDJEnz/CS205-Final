@@ -47,7 +47,7 @@ diceSize = 50
 # windowLength = 1200
 # windowWidth = 800
 
-windowLength = 1920
-windowWidth = 1280
+windowLength = 1280
+windowWidth = 720
 
 
