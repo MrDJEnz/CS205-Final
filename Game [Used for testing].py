@@ -605,12 +605,6 @@ if __name__ == "__main__":
     pygame.init()
     pygameWindow = pygame.display.set_mode((c.windowLength, c.windowWidth))
 
-
-        
-
-
-
-
     # Create instance of Game to contain risk objects
     try:
         gameInstance = Game(pygameWindow, turn)

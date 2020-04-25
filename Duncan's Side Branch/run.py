@@ -12,10 +12,10 @@ def run():
     clock = pygame.time.Clock()
     pygame.display.set_caption("Risk (GAME WINDOW)")
     background1 = pygame.image.load(c.imagePath + c.menuBackgroundImage)
-
+    numPlayers = 2
     newMenu = Menu(MENUSTAT, screen, clock, background1)
 
-    Menu.startMenu(newMenu)
+    Menu.startMenu(newMenu,numPlayers)
 
 if __name__ == "__main__":
     run()

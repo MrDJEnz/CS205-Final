@@ -21,16 +21,16 @@ class Game():
         self.players = Turn.players
         self.Turn = Turn
 
-        self.numTroops = 25 #Sets number of troops
+        self.numTroops = 25 # Sets number of troops
         self.selectedTerritory = None
 
-        self.interfaceDice = [] #Contains dice results
-        self.functions = [] #Contains function calls
-        self.interfaceText = [] #Contains text layers for HUD
-        self.surfaces = [] #Contains surface layers
-        self.tempTerritoryList = [] #Contains territory layers
-        self.textList = [] #Contains text overlays
-        self.topLevel = [] #Used to hold help and win screen
+        self.interfaceDice = [] # Contains dice results
+        self.functions = [] # Contains function calls
+        self.interfaceText = [] # Contains text layers for HUD
+        self.surfaces = [] # Contains surface layers
+        self.tempTerritoryList = [] # Contains territory layers
+        self.textList = [] # Contains text overlays
+        self.topLevel = [] # Used to hold help and win screen
 
     @property # Decorator overwrites get/set, method checks min deployment troops
     def troopCount(self):
@@ -413,7 +413,7 @@ def button(txt, xPos, yPos, width, height, ic, ac, command = None):
 
     smallText = pygame.font.Font(None, 20)
     textSurface, textBox = textArea(txt, smallText)
-    textBox.center = ((xPos + (w/2)), (yPos + (height/2)))
+    textBox.center = ((xPos + (width/2)), (yPos + (height/2)))
     
     pygameWindow.blit(textSurface, textBox)
 

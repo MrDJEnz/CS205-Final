@@ -11,7 +11,7 @@ class Map():
         self.continents.append(Continent(["Congo", "East Africa", "Egypt", "Madagascar", "North Africa", "South Africa"], 3, "Africa", self))
         self.continents.append(Continent(["Alaska", "Alberta", "Central America", "Eastern United States", "Greenland", "Northern Territories", "Ontario", "Quebec", "Northern United States"], 5, "North America", self))
         self.continents.append(Continent(["Venezuela", "Bresil", "Peru", "Argentina"], 2, "South America", self))
-        self.continents.append(Continent(["Afghanistan", "China", "India", "Tchita", "Japan", "North Russia", "Middle East", "Mongolia", "Phillipines", "Siberia", "Northern Russia", "Eastern Russia"], 7, "Asia", self))
+        self.continents.append(Continent(["Afghanistan", "China", "India", "Irkutsk", "Japan", "North Russia", "Middle East", "Mongolia", "Phillipines", "Siberia", "Northern Russia", "Eastern Russia"], 7, "Asia", self))
         self.continents.append(Continent(["Great Britan", "Iceland", "Northern Europe", "Scandanvia", "Southern Europe", "Ukraine", "Western Europe"], 5, "Europe", self))
         self.continents.append(Continent(["Western Austurlia", "Indonesia", "Papa New Guiniea", "Western Austurlia"], 2, "Austrualiaa", self))
 

@@ -16,7 +16,7 @@ menuBackgroundImage = "menu background.jpg"
 loadingImage = "loading.png"
 
 mapImages = "basemap.png"
-# mapImages = "Risk_baord.jpg"
+# mapImages = "Risk_board.jpg"
 backgroundImage ="background.jpg"
 bareImage = "ui.png"
 
@@ -26,12 +26,12 @@ exitButton = "exit.png"
 deadImage = "tombstone.png"
 
 
-red = (255,0,0)
-green = (0,255,0)
-blue = (0,0,255)
-yellow = (255,255,0)
-purple = (255,0,255)
-teal = (0,255,255)
+red = (250,128,114)
+green = (173,255,47)
+blue = (0,191,255)
+yellow = (255,255,153)
+purple = (238,130,238)
+teal = (72,61,139)
 white = (255, 255, 255)
 black = (0, 0, 0)
 
@@ -42,8 +42,12 @@ riskBlue = (20,20,200)
 riskYellow = (200,200,20)
 
 
-diceSize = 25
-windowLength = 1300
-windowWidth = 800
+diceSize = 50
+
+# windowLength = 1200
+# windowWidth = 800
+
+windowLength = 1920
+windowWidth = 1280
 
 
