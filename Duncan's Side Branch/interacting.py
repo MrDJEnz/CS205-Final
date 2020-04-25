@@ -7,7 +7,7 @@ import  glob
 
 class Interacting():
 
-    def formatTerr(self, worldTerritories, territorySprites, highlightedTerritories, gui, colorTerritories, textList):
+    def formatTerr(self, worldTerritories, territorySprites, highlightedTerritories, gui, colorTerritories, textList, map):
         # Format territory sprites and add to surface
         for i, j in enumerate(worldTerritories):
             surface = pygame.image.load(j).convert()

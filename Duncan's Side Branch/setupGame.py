@@ -20,8 +20,6 @@ class SetupGame():
         textSurface = font.render(text, True, color)
         return textSurface, textSurface.get_rect()
 
-
-
     def startGame(self, numPlayers):
 
         newMap = Map()
@@ -38,7 +36,6 @@ class SetupGame():
 
         for i in range(numPlayers):
             pturn.players[i].color = colors[i]
-
             pturn.players[i].name = names[i]
 
 
