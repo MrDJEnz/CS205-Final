@@ -4,9 +4,9 @@ class Player():
         self.playerTroops = 0
         self.name = ""
         self.territories = []
-        self._bonus = 0
-        self._sbyturn = 0
-        self._isalive = True
+        self.bonus = 0
+        self.sbyturn = 0
+        self.isalive = True
         self.color = (0, 0, 0)
         self.map = Map
         self.turns = turns
