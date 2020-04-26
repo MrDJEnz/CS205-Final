@@ -1,8 +1,9 @@
+# Team 9 RISK
+
 from continent import Continent
 
-
+# Contains territory initialization and neighboring paths
 class Map():
-
     def __init__(self):
         self.territories = []
         self.continents = []
@@ -104,11 +105,14 @@ class Map():
         self.continents[5].territories[2].neighbors = [42, 40, 39] # New Guinea
         self.continents[5].territories[3].neighbors = [39, 41, 40] # Western Australia
 
+    # Determines if territories are neighbors
     def checkValidPath(self, playerTerritories, startTerritory, endTerritory):
         validTerritories = []
+
         if startTerritory.id in playerTerritories:
             validTerritories.append(startTerritory.id)
             self.pathCalculation(startTerritory, playerTerritories, validTerritories)
+
             if endTerritory.id in validTerritories:
                 print("A path exists")
                 return True
@@ -119,6 +123,7 @@ class Map():
             print("Player cannot choose this country")
             return False
 
+    # Helper for check path
     def pathCalculation(self, territories, playerTerritories, validTerritories):
         for pathIndexer in territories.neighbors:
             if pathIndexer in playerTerritories and pathIndexer not in validTerritories:

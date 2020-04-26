@@ -1,3 +1,4 @@
+# Team 9 RISK
 from MainMenu import Menu
 import constants as c
 import pygame
@@ -6,6 +7,7 @@ import pygame
 # Since we were behind we used a wikipedia page with all the map images,
 # and https://github.com/Whysmerhill/Risk/tree/a23b17826e84d992bf5434b99724d7aafaae5443 as a reference point.
 # Most of the code is handwritten with logic for the playerTurn borrowed from this github.
+
 def run():
     # We will start with the main menu to start the proj.
     freshStart = True  # for initializing map animation

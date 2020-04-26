@@ -6,12 +6,13 @@ import copy
 class Objective():
     def __init__(self,goal,player):
         self.goal = goal
-        self.type = self.goal.types[random.randint(0,len(self.goal.types)-1)]
+        self.type = self.goal.types[random.randint(0, len(self.goal.types) - 1)]
         self.player = player
         self._description = ""
-        self.gen_obj()
+        self.setObjectives()
 
-    def gen_obj(self):
+    # Used for goal setup
+    def setObjectives(self):
         if self.type == "Captured continent":
             self.continents = []
             self.other_cont = False
@@ -57,80 +58,85 @@ class Objective():
         if self.type == "Kill all enemies":
             randrange_excl = copy.copy(self.goal.randrange[2])
             try:
-                randrange_excl.remove(self.player.id) #Excluding self
+                randrange_excl.remove(self.player.id)
             except ValueError:
-                pass #If player already lost
+                pass
+            
             if len(randrange_excl) == 0:
                 print("You lost!")
             try:
                 randid = random.choice(randrange_excl)
-                self.goal.randrange[2].remove(randid) #Prevent mission dupe
+                self.goal.randrange[2].remove(randid) # Prevent mission dupe
                 self.target=self.goal.turns.players[randid - 1] 
-            except IndexError: #Restricted attackable players
-                self.type = self.goal.types[random.randint(0,1)] #Pick different mission
+            except IndexError: # Restricted attackable players
+                self.type = self.goal.types[random.randint(0,1)] # Pick different mission
                 self.gen_obj()
-            
+
+    # Used for goal formatting
     @property
     def description(self):
-        if self.type=='capture continents':
-            tmp_str='Capture'
-            for i in range(0,len(self.continents)):
-                tmp_str+=' '+str(self.continents[i].name)
+        if self.type == "capture continents":
+            tempStr = "Capture"
+            for i in range(0, len(self.continents)):
+                tempStr += " " + str(self.continents[i].name)
             if self.other_cont:
-                tmp_str+=' and another cont'
-            return tmp_str
-        elif self.type=='capture territories':
-            tmp_str = 'Capture '+str(self.nbpays)+' territories' 
-            if self.nbtroupes>1:
-                tmp_str+=' with '+str(self.nbtroupes)+' troops'
-            return tmp_str
-        elif self.type=='kill all enemies':
-            if self.target.name=='':
-                return 'Destory '+str(self.target.id)
+                tempStr += " and another cont"
+            return tempStr
+        elif self.type == "capture territories":
+            tempStr = "Capture " + str(self.nbpays) + " territories" 
+            if self.nbtroupes > 1:
+                tempStr += " with " + str(self.nbtroupes) + " troops"
+            return tempStr
+        elif self.type == "kill all enemies":
+            if self.target.name == "":
+                return "Destory " + str(self.target.id)
             else:
-                return 'Destory '+str(self.target.name)
+                return "Destory " + str(self.target.name)
 
     # Returns goal completion status for game victory
     def getGoalStatus(self):
-        if self.type=='capture territories':
-            return self.captureTerritory(self.nbpays,self.nbtroupes)
-        if self.type=='capture continents':
-            return self.captureContinent(self.continents,self.nbtroupes)
-        if self.type=='kill all enemies':
+        if self.type == "capture territories":
+            return self.captureTerritory(self.nbpays, self.nbtroupes)
+        if self.type == "capture continents":
+            return self.captureContinent(self.continents, self.nbtroupes)
+        if self.type == "kill all enemies":
             return self.destoryPlayer(self.target)        
 
-    def captureTerritory(self,nb_pays,nb_troupes):
-        numOccupyingTroops=0
+    # Used for checking if territory has been captured
+    def captureTerritory(self, numTerritories, nb_troupes):
+        numOccupyingTroops = 0
         for p in self.goal.map.territories:
-            if p.nb_troupes>nb_troupes-1 and p.id_player==self.player.id:
-                numOccupyingTroops+=1
-        if numOccupyingTroops>nb_pays-1:
-            self.goal.turns.game_finish=True
+            if p.nb_troupes > nb_troupes-1 and p.id_player==self.player.id:
+                numOccupyingTroops += 1
+        if numOccupyingTroops>numTerritories - 1:
+            self.goal.turns.game_finish = True
             return True
         else:
             return False
 
-    def captureContinent(self,continents,nb_troupes):
-        numOccupyingTroops=0
+    # Checks of all territories in a continent has been captured
+    def captureContinent(self, continents, nb_troupes):
+        numOccupyingTroops = 0
         for c in continents:
-            occupiedFlag=True
+            occupiedFlag = True
             for p in c.territories:
-                if p.nb_troupes<nb_troupes or p.id_player!=self.player.id:
-                    occupiedFlag=False
-            if occupiedFlag==True:
-                numOccupyingTroops+=1
-        if self.other_cont:
-            #player must have another continent
-            additionnal_cont=0
-            other_conts=[x for x in self.goal.map.continents if x not in continents]
+                if p.nb_troupes < nb_troupes or p.id_player != self.player.id:
+                    occupiedFlag = False
+            if occupiedFlag == True:
+                numOccupyingTroops += 1
+                
+        if self.other_cont: # Checks if player have another continent
+            additionnal_cont = 0
+            other_conts = [x for x in self.goal.map.continents if x not in continents]
             for c in other_conts:
-                occupiedFlag=True
+                occupiedFlag = True
                 for p in c.territories:
-                    if p.nb_troupes<nb_troupes or p.id_player!=self.player.id:
-                        occupiedFlag=False
-                if occupiedFlag==True:
-                    additionnal_cont+=1
-        if numOccupyingTroops == len(continents):
+                    if p.nb_troupes < nb_troupes or p.id_player != self.player.id:
+                        occupiedFlag = False
+                if occupiedFlag == True:
+                    additionnal_cont += 1
+                    
+        if numOccupyingTroops == len(continents): # Checks all continents has an occupied troop
             if self.other_cont and additionnal_cont>0:
                 self.goal.turns.game_finish=True
                 return True
@@ -142,9 +148,10 @@ class Objective():
         else:
             return False
 
-    def destoryPlayer(self,player):
+    # If player dead update flag
+    def destoryPlayer(self, player):
         if not player.isalive:
-            self.goal.turns.game_finish=True
+            self.goal.turns.game_finish = True
             return True
         else:
             return False

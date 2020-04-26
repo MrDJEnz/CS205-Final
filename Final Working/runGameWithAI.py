@@ -1,9 +1,12 @@
+#Team 9 RISK
+
+import glob
 import pygame
 from pygame import *
-import constants as c
-import glob
 from sprites import Sprites
+import constants as c
 
+# Alternate start point with an AI opponent
 class RunGameWithAI():
     def __init__(self, window, turn):
         self.pygameWindow = window

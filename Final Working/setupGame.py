@@ -1,13 +1,13 @@
+# Team 9 RISK
+
 import pygame
 from map import Map
 from playerTurn import PlayerTurn
 from runGame import RunGame
-# from runGameWithAI import RunGameWithAI
 import constants as c
 
-
+# Initializes game resources ie: map, ui, pygame
 class SetupGame():
-
     def __init__(self, running, screen, background, clock):
         self.running = running
         self.screen = screen
@@ -21,10 +21,10 @@ class SetupGame():
         textSurface = font.render(text, True, color)
         return textSurface, textSurface.get_rect()
 
+    # Initialize map and load players
     def startGame(self, numPlayers, running, screen, background, clock, numAI):
 
         print("we Have 1 AI player")
-
         newMap = Map()
 
         totalPlayers = numPlayers + numAI
@@ -38,8 +38,8 @@ class SetupGame():
         names = c.names
         colors = c.colors
 
-        aiNames = []
         # Initialize AI
+        aiNames = []
         for i in range(numAI):
             aiNames.append("AI"+str(i))
 
@@ -57,14 +57,10 @@ class SetupGame():
 
         print(pturn.players)
 
-        # Setup and start pygame
         pygame.init()
         pygameWindow = pygame.display.set_mode((c.windowLength, c.windowWidth))
 
         # Create instance of Game to contain risk objects
-        # gameInstance = RunGame(pygameWindow, pturn)
-        # gameInstance.functions.append(gameInstance.run)
-        # gameInstance.display()
         try:
             gameInstance = RunGame(pygameWindow, pturn)
             gameInstance.functions.append(gameInstance.run)

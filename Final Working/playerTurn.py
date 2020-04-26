@@ -1,9 +1,12 @@
+# Team 9 RISK
+
 import random
 from Card import Card
 from player import Player
 from Goal import Goal
 from Objective import Objective
 
+# Contains methods for setting turns. Turn depends on current players
 class PlayerTurn():
     def __init__(self, numPlayers, mapInstance):
         self.endGame = False
@@ -17,7 +20,7 @@ class PlayerTurn():
         for k in range(0, numPlayers):
             self.players.append(Player(k + 1, mapInstance, self))
 
-        # assigns player goals
+        # Assigns player goals
         self.goal = Goal(mapInstance, self)
         for k in range(0, numPlayers):
             self.players[k].obj = Objective(self.goal, self.players[k])
@@ -27,10 +30,10 @@ class PlayerTurn():
         self.phase = 0
         self._player_ = self.turnList[self.id_turnList]
 
+    # Helpers for allocating starting troupes
     @property
     def turnCount(self):
         return self.turnList[self.id_turnList]
-        # Method allocates starting troops for each player
 
     def initialTroops(self):
         playerNum = self.numPlayers
@@ -41,14 +44,17 @@ class PlayerTurn():
             player.num_troops = num_troops
 
     def playerName(self):
-        return self.players[self.turnCount -1].name
+        return self.players[self.turnCount - 1].name
 
+    # Turn actions on attack
     def next(self):
         playerTroops = self.players[self.turnCount - 1].num_troops
         deployable = self.players[self.turnCount - 1].troopsPerTurn
         iterator = self.players[self.turnCount - 1]
+
         if playerTroops > 0:
             raise ValueError("More Troops needed")
+
         num = self.num
         if num == 0:
             self.id_turnList = (self.id_turnList + 1) % len(self.turnList)
@@ -84,7 +90,7 @@ class PlayerTurn():
                     self.num += 1
         print(self.list_phase[self.phase])
 
-    # Next player turn
+    # Next player turn actions
     def next_player(self):
         if self.num == 0:  # Initial placement phase
             self.id_turnList = (self.id_turnList + 1) % len(self.turnList)
@@ -113,8 +119,10 @@ class PlayerTurn():
     # Distributes territories as evenly as possible among players
     def distributeTerritories(self, territories):
         listTerritoryID = []
+        
         for i in territories:
             listTerritoryID.append(i.id)
+
         random.shuffle(listTerritoryID)
         n = int(self.numTerritories / self.numPlayers)
 
@@ -129,6 +137,7 @@ class PlayerTurn():
                 self.map.territories[territories - 1].id_player = p.id
                 self.map.territories[territories - 1].num_troops = 1  # Min 1 troop per territory
                 p.num_troops -= 1
+
         return listTerritoryID
 
     # Get dice roll results
@@ -152,8 +161,7 @@ class PlayerTurn():
                 losses[0] = losses[0] + 1
         return losses
 
-        # Remove troops from old territory, add survivors to new
-
+    # Remove troops from old territory, add survivors to new
     def troopMovement(self, origin, destination, num_troops):
         if num_troops < origin.num_troops:
             origin.num_troops -= num_troops
@@ -161,6 +169,7 @@ class PlayerTurn():
         else:
             print("trying to move too many troops")
 
+    # Used with dice to calculate successful attacks
     def attack(self, attacker, defender, attackingTroops):
         diceResults = []
 
@@ -173,6 +182,7 @@ class PlayerTurn():
                 dice_atck = 1
             else:
                 raise ValueError("not enough troops:", attackingTroops)
+
             if defender.num_troops > 1:
                 dice_defender = 2
             elif defender.num_troops > 0:
@@ -224,5 +234,3 @@ class PlayerTurn():
         else:
             player.num_troops -= num_troops
             territories.num_troops += num_troops
-
-    # # getter for turn

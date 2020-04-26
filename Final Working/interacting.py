@@ -1,14 +1,16 @@
+# Team 9 RISK
 import pygame
 from pygame import *
 from sprites import Sprites
 from RiskGUI import GUI
 import constants as c
-import  glob
+import glob
 
+# Contains methods for map interaction during gameplay
 class Interacting():
 
+    # Formats territory sprites before adding to surfaces
     def formatTerr(self, worldTerritories, territorySprites, highlightedTerritories, gui, colorTerritories, textList, map):
-        # Format territory sprites and add to surface
         for i, j in enumerate(worldTerritories):
             surface = pygame.image.load(j).convert()
             resize = c.windowLength / surface.get_width()
@@ -35,8 +37,9 @@ class Interacting():
         gui.troopDisplay(textList, territorySprites, map)
         return finalLayout
 
+    # Checks mouse and key interactions in the window
     def eventHandler(self, gameEnd, helpFlag, selectFlag, selectedTerritory, troopCount, turn):
-        for event in pygame.event.get():  # Checks every mouse and key action in window
+        for event in pygame.event.get():
             if event.type == QUIT:
                 print("Ending game!")
                 gameEnd = True
@@ -80,10 +83,11 @@ class Interacting():
                     print("You should select a country first ...")
                 except ValueError as e:
                     print(e.args)
+                    
         return gameEnd, helpFlag, selectFlag, selectedTerritory
 
+    # Sends each surface to pygame display
     def sendSurface(self, finalLayout, surfaces, pygameWindow, textList, interfaceText, tempTerritoryList, topLevel, interfaceDice, functions):
-        # Sends layers to surface of pygame
         for surface in surfaces:
             pygameWindow.blit(surface[0], surface[1])
 
@@ -105,11 +109,11 @@ class Interacting():
             pygameWindow.blit(final[0], final[1])
 
         if functions != []:
-            for f in functions:
-                f()
+            for func in functions:
+                func()
 
+    # Shows victory screen if player completes domination goal
     def topLay(self, helpFlag, gui, turn, pygameWindow, players):
-        # Shows victory screen if player completes domination goal
         if turn.players[turn.turnCount - 1].obj.getGoalStatus() == True:
             topLevel = []
 
@@ -133,11 +137,12 @@ class Interacting():
 
                 topLevel.append([topLayer, (0, 0)])
                 gui.display_help(topLevel)
+                
             else:
                 topLevel = []
 
+    # Used to update the selected territory visual to provide an interactive action
     def updateVisualGetClick(self, temptroopValID, selectedTerritory, spriteLayer, pygameWindow):
-        # Update selected territory visuals
         if temptroopValID != selectedTerritory:
             pygameWindow.blit(spriteLayer.layout, (0, 0))
             pygame.display.update(spriteLayer.layout.get_rect())
@@ -146,6 +151,7 @@ class Interacting():
         click = pygame.mouse.get_pressed()
         return click
 
+    # Used to add troops to territories owned by players
     def placing(self, click, temptroopValID, map, turn, troopCount):
         if click[0] == 1:
             playerTerritory = next((p for p in map.territories if p.id == temptroopValID),
@@ -156,7 +162,9 @@ class Interacting():
             else:
                 print("This territory does not belong to the player!")
 
+    # Used for troop displacement between two valid (owned) territories
     def moving(self, click, selectFlag, temptroopValID, spriteLayer, startTerritory, map, turn, tempTerritoryList, troopCount):
+
         if click[0] == 1 and not selectFlag:  # On left click select territory
             startTerritory = next((p for p in map.territories if p.id == temptroopValID), None)
             selectedTerritory = startTerritory
@@ -177,4 +185,5 @@ class Interacting():
             if path and endTerritory.id != startTerritory.id:
                 turn.troopMovement(startTerritory, endTerritory, troopCount)
                 turn.next()
+                
         return selectFlag
