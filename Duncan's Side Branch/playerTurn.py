@@ -47,23 +47,23 @@ class PlayerTurn():
                 self.id_turnList = (self.id_turnList + 1) % len(self.turnList)
 
                 # Update territory info if captured
-                self.players[self.turnCount - 1].win_land = False
+                self.players[self.turnCount - 1].attack_success = False
                 if self.id_turnList == 0:
                     self.num += 1
                     self.phase = 0
 
                     # Updates reinforcement troops for start of player turn
-                    self.players[self.turnCount - 1].num_troops += self.players[self.turnCount - 1].sbyturn
+                    self.players[self.turnCount - 1].num_troops += self.players[self.turnCount - 1].troopsPerTurn
         else:
             self.phase = (self.phase + 1) % len(self.list_phase)
             if self.phase == 0:
                 self.id_turnList = (self.id_turnList + 1) % len(self.turnList)
 
                 # Update territory captured boolean
-                self.players[self.turnCount - 1].win_land = False
+                self.players[self.turnCount - 1].attack_success = False
 
                 # Updates reinforcement troops for start of player turn
-                self.players[self.turnCount - 1].num_troops += self.players[self.turnCount - 1].sbyturn
+                self.players[self.turnCount - 1].num_troops += self.players[self.turnCount - 1].troopsPerTurn
                 if self.id_turnList == 0:
                     self.num += 1
 
@@ -81,18 +81,18 @@ class PlayerTurn():
         elif self.num == 1:  # Skip placement
             self.phase = 1
             self.id_turnList = (self.id_turnList + 1) % len(self.turnList)
-            self.players[self.turnCount - 1].win_land = False
+            self.players[self.turnCount - 1].attack_success = False
             if self.id_turnList == 0:
                 self.num += 1
                 self.phase = 0
-                self.players[self.turnCount - 1].num_troops += self.players[self.turnCount - 1].sbyturn
+                self.players[self.turnCount - 1].num_troops += self.players[self.turnCount - 1].troopsPerTurn
 
         else:
             # Move to next player turn
             self.id_turnList = (self.id_turnList + 1) % len(self.turnList)
             self.phase = 0
-            self.players[self.turnCount - 1].win_land = False
-            self.players[self.turnCount - 1].num_troops += self.players[self.turnCount - 1].sbyturn
+            self.players[self.turnCount - 1].attack_success = False
+            self.players[self.turnCount - 1].num_troops += self.players[self.turnCount - 1].troopsPerTurn
             if self.id_turnList == 0:
                 self.num += 1
 
@@ -197,8 +197,8 @@ class PlayerTurn():
                 self.troopMovement(attacker, defender, dice_atck)
 
                 # Attacker gets a card if it is the first captured territory this turn
-                if self.players[attacker.id_player - 1].win_land == False:
-                    self.players[attacker.id_player - 1].win_land = True
+                if self.players[attacker.id_player - 1].attack_success == False:
+                    self.players[attacker.id_player - 1].attack_success = True
 
                     # If player has 5+ cards, card is discarded
                     if len(self.players[attacker.id_player - 1].cards) > 4:
