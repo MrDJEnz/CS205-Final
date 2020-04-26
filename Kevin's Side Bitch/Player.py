@@ -20,7 +20,7 @@ class Player():
 
     # Troop bonus from territories
     @property
-    def sbyturn(self):
+    def sby(self):
         return max(3, len(self.territories) // 3 + self.bonus)
 
     # Continent bonus check

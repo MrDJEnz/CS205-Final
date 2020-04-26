@@ -1,6 +1,6 @@
 import random
 from Card import Card
-from Player import Player
+from player import Player
 from Goal import Goal
 from Objective import Objective
 
@@ -97,7 +97,7 @@ class PlayerTurn():
     def initialTroops(self):
         if self.numPlayers == 2:
             num_troops = 50
-        if self.numPlayers == 3:
+        elif self.numPlayers == 3:
             num_troops = 40
         elif self.numPlayers == 4:
             num_troops = 30
@@ -107,6 +107,7 @@ class PlayerTurn():
             num_troops = 15
         else:
             print("Troop allocation error! Please restart game!")
+            num_troops = 0
         for p in self.players:
             p.num_troops = num_troops
 
@@ -248,9 +249,8 @@ class PlayerTurn():
             print("Player cannot select this territory")
             return False
 
-    # Se
     def pathDepth(self, territories, playerTerritories, validNeighbors):
-        for p_id in pays.voisins:
+        for p_id in territories.neighbors:
             if p_id in playerTerritories and p_id not in validNeighbors:
                 validNeighbors.append(p_id)
-                self.pathDepth(self.territories[p_id - 1], playerTerritories, validNeighbors)
+                self.pathDepth(territories[p_id - 1], playerTerritories, validNeighbors)

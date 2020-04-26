@@ -308,7 +308,7 @@ class RunGame():
 
                     # Placing reinforcements on owned territories
                     if self.turn.list_phase[self.turn.phase] == "Placement":
-                        self.placing(click, temptroopValID)
+                        self.placing(click, temptroopValID, )
 
                     # Attacking neighboring territories with n-1 troops
                     elif self.turn.list_phase[self.turn.phase] == "Attack":
