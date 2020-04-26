@@ -458,7 +458,7 @@ def display_hud(troopCount, interfaceText, turn, textPosition):
     textBox.topleft = textPosition
     interfaceText.append([textSurface, textBox])
 
-    textSurface, textBox = textArea("Troops per turn : " + str(turn.players[turn.turnCount - 1].sbyturn), smallText)
+    textSurface, textBox = textArea("Troops per turn : " + str(turn.players[turn.turnCount - 1].troopsPerTurn), smallText)
     textPosition = (textPosition[0], textPosition[1] - margin - margin)
     textBox.topleft = textPosition
     interfaceText.append([textSurface, textBox])

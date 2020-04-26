@@ -12,14 +12,14 @@ class Player():
         self.turns = turns
         self.obj = None
         self.cards = []
-        self.win_land = False
+        self.attack_success = False
 
     def del_card(self, card_index):
         self.cards.pop(card_index)
 
     # Troop bonus from territories
     @property
-    def sbyturn(self):
+    def troopsPerTurn(self):
         return max(3, len(self.territories) // 3 + self.bonus)
 
     # Continent bonus check
@@ -35,11 +35,3 @@ class Player():
             if player_have_cont:
                 b += c.bonus
         return b
-
-    # Bool player lost check
-    @property
-    def isalive(self):
-        if len(self.territories) > 0:
-            return True
-        else:
-            return False

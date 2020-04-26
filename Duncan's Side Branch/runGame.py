@@ -28,7 +28,7 @@ class RunGame():
         self.textList = []  # Contains text overlays
         self.topLevel = []  # Used to hold help and win screen
 
-    @property  # Decorator overwrites get/set, method checks min deployment troops
+    @property
     def troopCount(self):
         if self.turn.phase == 0:
             return min(self.numTroops, self.players[
@@ -36,7 +36,7 @@ class RunGame():
         else:
             return self.numTroops
 
-    @troopCount.setter  # Alternative corresponding decorator
+    @troopCount.setter
     def troopCount(self, troopVal):
         if self.turn.phase == 0:  # Checks troop placement during different phases
             if troopVal < 1:

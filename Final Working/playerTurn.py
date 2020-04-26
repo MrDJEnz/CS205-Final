@@ -27,47 +27,61 @@ class PlayerTurn():
         self.phase = 0
         self._player_ = self.turnList[self.id_turnList]
 
+    @property
+    def turnCount(self):
+        return self.turnList[self.id_turnList]
+        # Method allocates starting troops for each player
+
+    def initialTroops(self):
+        playerNum = self.numPlayers
+        maxTroops = 105
+        num_troops = int(maxTroops / playerNum)
+
+        for player in self.players:
+            player.num_troops = num_troops
+
     def playerName(self):
         return self.players[self.turnCount -1].name
 
     def next(self):
-        if self.players[self.turnCount - 1].num_troops > 0:
-            raise ValueError("Need to deploy", self.players[self.turnCount - 1].num_troops)
-
-        if self.num == 0:  # Placement phase
+        playerTroops = self.players[self.turnCount - 1].num_troops
+        deployable = self.players[self.turnCount - 1].troopsPerTurn
+        iterator = self.players[self.turnCount - 1]
+        if playerTroops > 0:
+            raise ValueError("More Troops needed")
+        num = self.num
+        if num == 0:
             self.id_turnList = (self.id_turnList + 1) % len(self.turnList)
             if self.id_turnList == 0:
                 self.num += 1
                 self.phase = (self.phase + 1) % len(self.list_phase)
-
-        elif self.num == 1:  # Attack phase
+        if num == 1:
             self.phase = (self.phase + 1) % len(self.list_phase)
             if self.phase == 0:
                 self.phase += 1
                 self.id_turnList = (self.id_turnList + 1) % len(self.turnList)
 
                 # Update territory info if captured
-                self.players[self.turnCount - 1].win_land = False
+                iterator.attack_success = False
                 if self.id_turnList == 0:
                     self.num += 1
                     self.phase = 0
 
                     # Updates reinforcement troops for start of player turn
-                    self.players[self.turnCount - 1].num_troops += self.players[self.turnCount - 1].sbyturn
+                    playerTroops += deployable
+
         else:
-            self.phase = (self.phase + 1) % len(self.list_phase)
+            self.phase += 1 % len(self.list_phase)
             if self.phase == 0:
                 self.id_turnList = (self.id_turnList + 1) % len(self.turnList)
 
                 # Update territory captured boolean
-                self.players[self.turnCount - 1].win_land = False
+                self.players[self.turnCount - 1].attack_success = False
 
                 # Updates reinforcement troops for start of player turn
-                self.players[self.turnCount - 1].num_troops += self.players[self.turnCount - 1].sbyturn
+                playerTroops += deployable
                 if self.id_turnList == 0:
                     self.num += 1
-
-        print("Turn Number :", self.num, "order", self.turnList, "player turn", self.turnList[self.id_turnList])
         print(self.list_phase[self.phase])
 
     # Next player turn
@@ -81,52 +95,35 @@ class PlayerTurn():
         elif self.num == 1:  # Skip placement
             self.phase = 1
             self.id_turnList = (self.id_turnList + 1) % len(self.turnList)
-            self.players[self.turnCount - 1].win_land = False
+            self.players[self.turnCount - 1].attack_success = False
             if self.id_turnList == 0:
                 self.num += 1
                 self.phase = 0
-                self.players[self.turnCount - 1].num_troops += self.players[self.turnCount - 1].sbyturn
+                self.players[self.turnCount - 1].num_troops += self.players[self.turnCount - 1].troopsPerTurn
 
         else:
             # Move to next player turn
             self.id_turnList = (self.id_turnList + 1) % len(self.turnList)
             self.phase = 0
-            self.players[self.turnCount - 1].win_land = False
-            self.players[self.turnCount - 1].num_troops += self.players[self.turnCount - 1].sbyturn
+            self.players[self.turnCount - 1].attack_success = False
+            self.players[self.turnCount - 1].num_troops += self.players[self.turnCount - 1].troopsPerTurn
             if self.id_turnList == 0:
                 self.num += 1
-
-    # Method allocates starting troops for each player
-    def initialTroops(self):
-        if self.numPlayers == 2:
-            num_troops = 50
-        elif self.numPlayers == 3:
-            num_troops = 40
-        elif self.numPlayers == 4:
-            num_troops = 30
-        elif self.numPlayers == 5:
-            num_troops = 20
-        elif self.numPlayers == 6:
-            num_troops = 15
-        else:
-            print("Troop allocation error! Please restart game!")
-            num_troops = 0
-        for p in self.players:
-            p.num_troops = num_troops
 
     # Distributes territories as evenly as possible among players
     def distributeTerritories(self, territories):
         listTerritoryID = []
-        for k in territories:
-            listTerritoryID.append(k.id)
+        for i in territories:
+            listTerritoryID.append(i.id)
         random.shuffle(listTerritoryID)
-        n = self.numTerritories // self.numPlayers
+        n = int(self.numTerritories / self.numPlayers)
+
         for idx, i in enumerate(range(0, len(listTerritoryID), n)):
             if idx < self.numPlayers:
                 self.players[idx].territories = listTerritoryID[i:i + n]
             else:
-                for pays_restant in listTerritoryID[i:i + n]:  # After distribution, remaing countrys randomly assigned
-                    self.players[random.randint(0, self.numPlayers - 1)].territories.append(pays_restant)
+                for remaining_Countries in listTerritoryID[i:i + n]:  # After distribution, remaing countrys randomly assigned
+                    self.players[random.randint(0, self.numPlayers - 1)].territories.append(remaining_Countries)
         for p in self.players:
             for territories in p.territories:
                 self.map.territories[territories - 1].id_player = p.id
@@ -155,7 +152,15 @@ class PlayerTurn():
                 losses[0] = losses[0] + 1
         return losses
 
-    # Tests attack vs defense forces
+        # Remove troops from old territory, add survivors to new
+
+    def troopMovement(self, origin, destination, num_troops):
+        if num_troops < origin.num_troops:
+            origin.num_troops -= num_troops
+            destination.num_troops += num_troops
+        else:
+            print("trying to move too many troops")
+
     def attack(self, attacker, defender, attackingTroops):
         diceResults = []
 
@@ -169,11 +174,11 @@ class PlayerTurn():
             else:
                 raise ValueError("not enough troops:", attackingTroops)
             if defender.num_troops > 1:
-                dice_def = 2
+                dice_defender = 2
             elif defender.num_troops > 0:
-                dice_def = 1
+                dice_defender = 1
 
-            res = self.rollDice(dice_atck, dice_def)
+            res = self.rollDice(dice_atck, dice_defender)
             print(res)
 
             diceResults.append(res)
@@ -197,8 +202,8 @@ class PlayerTurn():
                 self.troopMovement(attacker, defender, dice_atck)
 
                 # Attacker gets a card if it is the first captured territory this turn
-                if self.players[attacker.id_player - 1].win_land == False:
-                    self.players[attacker.id_player - 1].win_land = True
+                if self.players[attacker.id_player - 1].attack_success == False:
+                    self.players[attacker.id_player - 1].attack_success = True
 
                     # If player has 5+ cards, card is discarded
                     if len(self.players[attacker.id_player - 1].cards) > 4:
@@ -207,13 +212,7 @@ class PlayerTurn():
                     self.players[attacker.id_player - 1].cards.append(Card())
                 return True, diceResults
 
-    # Remove troops from old territory, add survivors to new
-    def troopMovement(self, origin, destination, num_troops):
-        if num_troops < origin.num_troops:
-            origin.num_troops -= num_troops
-            destination.num_troops += num_troops
-        else:
-            print("trying to move too many troops")
+
 
     # Troop assigner during placement
     def placeTroops(self, territories, num_troops):
@@ -226,34 +225,4 @@ class PlayerTurn():
             player.num_troops -= num_troops
             territories.num_troops += num_troops
 
-    # getter for turn
-    @property
-    def turnCount(self):
-        return self.turnList[self.id_turnList]
-
-    # # for debug
-    # def print_pays(self):
-    #     for territories in self.territories:
-    #         territories.print_carac()
-
-    # Checks if path is valid
-    def chemin_exist(self, playerTerritories, territoryA, territoryB):
-        validNeighbors = []
-        if territoryA.id in playerTerritories:
-            validNeighbors.append(territoryA.id)
-            self.pathDepth(territoryA, playerTerritories, validNeighbors)
-            if territoryB.id in validNeighbors:
-                print("A path exists")
-                return True
-            else:
-                print("no valid path")
-                return False
-        else:
-            print("Player cannot select this territory")
-            return False
-
-    def pathDepth(self, territories, playerTerritories, validNeighbors):
-        for p_id in territories.neighbors:
-            if p_id in playerTerritories and p_id not in validNeighbors:
-                validNeighbors.append(p_id)
-                self.pathDepth(territories[p_id - 1], playerTerritories, validNeighbors)
+    # # getter for turn

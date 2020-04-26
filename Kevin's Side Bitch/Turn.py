@@ -53,7 +53,7 @@ class Turn():
                     self.phase = 0
 
                     #Updates reinforcement troops for start of player turn
-                    self.players[self.turnCount - 1].nb_troupes += self.players[self.turnCount - 1].sbyturn
+                    self.players[self.turnCount - 1].nb_troupes += self.players[self.turnCount - 1].troopsPerTurn
         else:
             self.phase=(self.phase + 1) % len(self.list_phase)
             if self.phase == 0 :
@@ -63,7 +63,7 @@ class Turn():
                 self.players[self.turnCount - 1].win_land = False
 
                 #Updates reinforcement troops for start of player turn
-                self.players[self.turnCount - 1].nb_troupes += self.players[self.turnCount - 1].sbyturn
+                self.players[self.turnCount - 1].nb_troupes += self.players[self.turnCount - 1].troopsPerTurn
                 if self.id_turnList == 0:
                     self.num += 1
                     
@@ -85,14 +85,14 @@ class Turn():
             if self.id_turnList == 0:
                 self.num += 1
                 self.phase = 0
-                self.players[self.turnCount - 1].nb_troupes += self.players[self.turnCount - 1].sbyturn
+                self.players[self.turnCount - 1].nb_troupes += self.players[self.turnCount - 1].troopsPerTurn
 
         else:
             # Move to next player turn
             self.id_turnList = (self.id_turnList + 1) % len(self.turnList)
             self.phase = 0
             self.players[self.turnCount - 1].win_land = False
-            self.players[self.turnCount - 1].nb_troupes += self.players[self.turnCount - 1].sbyturn
+            self.players[self.turnCount - 1].nb_troupes += self.players[self.turnCount - 1].troopsPerTurn
             if self.id_turnList == 0:
                 self.num += 1
 
