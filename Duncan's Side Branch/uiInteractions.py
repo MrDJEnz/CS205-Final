@@ -33,7 +33,9 @@ def formatTerr(self, worldTerritories, territorySprites, highlightedTerritories,
     return finalLayout
 
 
-def eventHandler(self, gameEnd, helpFlag, selectFlag, spriteSelected):
+def eventHandler(self, gameEnd, helpFlag, selectFlag, spriteSelected, ID):
+    if "AI" in ID:
+        pass
     for event in pygame.event.get():  # Checks every mouse and key action in window
         if event.type == QUIT:
             print("Ending game!")
@@ -137,7 +139,10 @@ def topLay(self, helpFlag, gui):
             self.topLevel = []
 
 
-def updateVisualGetClick(self, temptroopValID, selectedTerritory, spriteLayer):
+def updateVisualGetClick(self, temptroopValID, selectedTerritory, spriteLayer, pName):
+
+    if "AI" in pName:
+        pass
     # Update selected territory visuals
     if temptroopValID != selectedTerritory:
         self.pygameWindow.blit(spriteLayer.layout, (0, 0))
