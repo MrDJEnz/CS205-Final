@@ -24,7 +24,7 @@ class SetupGame():
     # Initialize map and load players
     def startGame(self, numPlayers, running, screen, background, clock, numAI):
 
-        print("we Have 1 AI player")
+        print("we Have " + str(numAI) + " AI player")
         newMap = Map()
 
         totalPlayers = numPlayers + numAI

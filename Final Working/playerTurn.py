@@ -50,7 +50,6 @@ class PlayerTurn():
         if playerTroops > 0:
             raise ValueError("More Troops needed")
 
-
         if self.num == 0:
             self.id_turnList = (self.id_turnList + 1) % len(self.turnList)
             if self.id_turnList == 0:
