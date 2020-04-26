@@ -30,11 +30,6 @@ class PlayerTurn():
         self.phase = 0
         self._player_ = self.turnList[self.id_turnList]
 
-    # Helpers for allocating starting troupes
-    @property
-    def turnCount(self):
-        return self.turnList[self.id_turnList]
-
     def initialTroops(self):
         playerNum = self.numPlayers
         maxTroops = 105
@@ -55,13 +50,13 @@ class PlayerTurn():
         if playerTroops > 0:
             raise ValueError("More Troops needed")
 
-        num = self.num
-        if num == 0:
+
+        if self.num == 0:
             self.id_turnList = (self.id_turnList + 1) % len(self.turnList)
             if self.id_turnList == 0:
                 self.num += 1
                 self.phase = (self.phase + 1) % len(self.list_phase)
-        if num == 1:
+        if self.num == 1:
             self.phase = (self.phase + 1) % len(self.list_phase)
             if self.phase == 0:
                 self.phase += 1
@@ -234,3 +229,8 @@ class PlayerTurn():
         else:
             player.num_troops -= num_troops
             territories.num_troops += num_troops
+
+    # Helpers for allocating starting troupes
+    @property
+    def turnCount(self):
+        return self.turnList[self.id_turnList]

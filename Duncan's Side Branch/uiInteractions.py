@@ -139,10 +139,10 @@ def topLay(self, helpFlag, gui):
             self.topLevel = []
 
 
-def updateVisualGetClick(self, temptroopValID, selectedTerritory, spriteLayer, pName):
+def updateVisualGetClick(self, temptroopValID, selectedTerritory, spriteLayer):
 
-    if "AI" in pName:
-        pass
+    # if "AI" in pName:
+    #     pass
     # Update selected territory visuals
     if temptroopValID != selectedTerritory:
         self.pygameWindow.blit(spriteLayer.layout, (0, 0))

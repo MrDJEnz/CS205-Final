@@ -159,7 +159,7 @@ class RunGame():
                     spriteLayer = next((territorySprite for territorySprite in highlightedTerritories if
                                         territorySprite.id == temptroopValID), None)
 
-                    click = uiInteractions.updateVisualGetClick(self, temptroopValID, spriteSelected, spriteLayer, pName)
+                    click = uiInteractions.updateVisualGetClick(self, temptroopValID, spriteSelected, spriteLayer)
 
                     # Placing reinforcements on owned territories
                     if self.turn.list_phase[self.turn.phase] == "Placement":

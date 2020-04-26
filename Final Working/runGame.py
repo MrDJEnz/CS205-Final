@@ -163,7 +163,7 @@ class RunGame():
                     spriteLayer = next((territorySprite for territorySprite in highlightedTerritories if
                                         territorySprite.id == temptroopValID), None)
 
-                    click = uiInteractions.updateVisualGetClick(self, temptroopValID, spriteSelected, spriteLayer, pName)
+                    click = uiInteractions.updateVisualGetClick(self, temptroopValID, spriteSelected, spriteLayer)
 
                     # Placing reinforcements on owned territories
                     if self.turn.list_phase[self.turn.phase] == "Placement":
@@ -179,8 +179,8 @@ class RunGame():
                             troopsMax = self.turn.players[self.turn.turnCount - 1].num_troops
                             randTroops = random.randrange(1,troopsMax +1)
                             self.turn.placeTroops(avail[randCountry], randTroops)
-
-                        uiInteractions.placing(self, click, temptroopValID)
+                        else:
+                            uiInteractions.placing(self, click, temptroopValID)
 
                     # Attacking neighboring territories with n-1 troops
                     elif self.turn.list_phase[self.turn.phase] == "Attack":
@@ -254,9 +254,10 @@ class RunGame():
                                 print("Using army with less troops")
                             else:
                                 print("No available attacks")
+                        else:
                         
-                        # Updates flags after event check
-                        attackFlag, selectFlag, startTerritory, targetTerritory = uiInteractions.attacking(self, click, selectFlag, temptroopValID, spriteLayer, attackFlag, gui, territorySprites, finalLayout, startTerritory, targetTerritory)
+                            # Updates flags after event check
+                            attackFlag, selectFlag, startTerritory, targetTerritory = uiInteractions.attacking(self, click, selectFlag, temptroopValID, spriteLayer, attackFlag, gui, territorySprites, finalLayout, startTerritory, targetTerritory)
 
 
 
