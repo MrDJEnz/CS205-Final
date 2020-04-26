@@ -6,6 +6,7 @@ from RiskGUI import GUI
 import glob
 import uiInteractions
 import random
+import time
 
 class RunGame():
     def __init__(self, window, turn):
@@ -208,25 +209,28 @@ class RunGame():
                                     totTargets.append(p)
 
                             attackable = []
-                            for i in idxV.neighbors:
-                                attackable.append(i)
-                            print("asd " + str(attackable))
+                            for i in totTargets:
+                                if i.id in idxV.neighbors:
+                                    attackable.append(i)
+                                    # print(i.id)
 
-                            for i in range(len(availWTroops)):
-                                if len(attackable) < 1:
-                                    attackable = []
-                                    idxV = 0
-                                    lrgst = 0
-                                    for j in idxN:
-                                        numtroops = j[0]
-                                        if maxT > numtroops > lrgst:
-                                            lrgst = numtroops
-                                            idxV = j[1]
-                                            for k in j[1].neighbors:
-                                                attackable.append(k)
 
-                            print("sdf " + str(attackable))
+                            # for i in range(len(availWTroops)):
+                            #     if len(attackable) < 1:
+                            #         attackable = []
+                            #         idxV = 0
+                            #         lrgst = 0
+                            #         for j in idxN:
+                            #             numtroops = j[0]
+                            #             if maxT > numtroops > lrgst:
+                            #                 lrgst = numtroops
+                            #                 idxV = j[1]
+                            #                 for k in j[1].neighbors:
+                            #                     attackable.append(k)
+
+                            # print("sdf " + str(totTargets))
                             randTarget = random.randrange(0, len(attackable))
+                            # print(randTarget)
                             # print(attackable)
                             # idxT = attackable[randTarget]
                             # print(idxT)
@@ -235,11 +239,37 @@ class RunGame():
                             #     print("ATTACKING")
                             tgts = []
                             if maxT == idxV.num_troops:
-                                print("Using strongest army.")
+                                # print("Using strongest army.")
                                 for i in idxV.neighbors:
                                     tgts.append(i)
-                                if tgts[randTarget].id_player != self.turn.turnCount and tgts[randTarget].id in idxV.neighbors:
-                                    print("ATTACKING")
+                                if idxV.id_player == self.turn.turnCount and idxV.id in attackable[randTarget].neighbors:
+                                    # print("ATTACKING")
+                                    try:
+                                        self.interfaceDice = []
+                                        attackResult, diceResults = self.turn.attack(idxV, totTargets[randTarget],
+                                                                                     self.troopCount)
+                                        for i, res in enumerate(diceResults):
+                                            gui.diceRolls(self, res[0], res[2], 600, territorySprites[
+                                                0].layout.get_height() + 10 + i * c.diceSize * 1.1)
+                                            gui.diceRolls(self, res[1], res[3], 800, territorySprites[
+                                                0].layout.get_height() + 10 + i * c.diceSize * 1.1)
+                                        pygame.time.wait(100)
+                                    except ValueError as e:
+                                        print(e.args)
+                                        attackResult = False
+                                        self.tempTerritoryList = []
+
+                                    if attackResult:  # On successful attack, update visuals
+                                        sprite = next((s for s in territorySprites if s.id == temptroopValID), None)
+                                        gui.setSurfaceColor(sprite, self.turn.players[self.turn.turnCount - 1].color,
+                                                            255)
+                                        time.sleep(.05)
+                                        finalLayout.blit(sprite.layout, (0, 0))
+                                        targetTerritory = totTargets[randTarget]
+                                        self.numTroops = idxV.num_troops - 1
+
+                                    else:
+                                        self.tempTerritoryList = []
                             elif idxV.num_troops > 1:
                                 print("Using army with less troops")
                             else:
