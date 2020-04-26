@@ -2,7 +2,6 @@ import pygame
 from map import Map
 from playerTurn import PlayerTurn
 from runGame import RunGame
-# from runGameWithAI import RunGameWithAI
 import constants as c
 
 
@@ -21,41 +20,25 @@ class SetupGame():
         textSurface = font.render(text, True, color)
         return textSurface, textSurface.get_rect()
 
-    def startGame(self, numPlayers, running, screen, background, clock, numAI):
+    def startGame(self, numPlayers, running, screen, background, clock):
 
-        print("we Have 1 AI player")
 
         newMap = Map()
 
-        totalPlayers = numPlayers + numAI
-        pturn = PlayerTurn(totalPlayers, newMap)
+        pturn = PlayerTurn(numPlayers, newMap)
         pturn.initialTroops()
         pturn.distributeTerritories(newMap.territories)
 
         Continents = newMap.continents
 
         # Initialize players
-        names = c.names
-        colors = c.colors
+        names = ["Duncan", "Isaac", "Lilly", "Finn", "Anna", "Brianna"]
+        colors = [c.red, c.green, c.blue, c.yellow, c.purple, c.teal]
 
-        aiNames = []
-        # Initialize AI
-        for i in range(numAI):
-            aiNames.append("AI"+str(i))
-
-        print(names)
-        print(colors)
-        print(numPlayers)
-        print(numAI)
-
-        for i in range(totalPlayers):
-            pturn.players[i].color = colors[i]
         for i in range(numPlayers):
+            pturn.players[i].color = colors[i]
             pturn.players[i].name = names[i]
-        for i in range(numAI):
-            pturn.players[i+numPlayers].name = aiNames[i]
 
-        print(pturn.players)
 
         # Setup and start pygame
         pygame.init()
@@ -75,7 +58,7 @@ class SetupGame():
             print("Try moving the moving your mouse cursor onto the man's nose while you wait?")
 
             sGame = SetupGame(running, screen, background, clock)
-            sGame.startGame(numPlayers, running, screen, background, clock, numAI)
+            sGame.startGame(numPlayers, running, screen, background, clock)
 
 
 

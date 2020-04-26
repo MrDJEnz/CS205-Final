@@ -1,6 +1,4 @@
-# Team 9 RISK
 
-# Initializes country data and paths
 class Territories():
     def __init__(self, name, continent, Map):
         Map.numTerritories = Map.numTerritories + 1
@@ -8,9 +6,9 @@ class Territories():
         self.name = name
         self.continent = continent
         self.id_player = 0
-        self.nb_troupes = 0
+        self.num_troops = 0
         self.neighbors = []
-        
-    def voisins(self, territories):
+
+    def neighbors(self, territories):
         for t in territories:
             self.neighbors.append(t)

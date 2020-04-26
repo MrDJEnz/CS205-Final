@@ -250,7 +250,7 @@ class Turn():
 
     # Se
     def pathDepth(self, territories, playerTerritories, validNeighbors):
-        for p_id in pays.voisins:
+        for p_id in territories.voisins:
             if p_id in playerTerritories and p_id not in validNeighbors:
                 validNeighbors.append(p_id)
                 self.pathDepth(self.territories[p_id - 1],playerTerritories, validNeighbors)

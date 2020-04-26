@@ -27,6 +27,7 @@ exitButton = "exit.png"
 deadImage = "tombstone.png"
 
 
+
 red = (250,128,114)
 green = (173,255,47)
 blue = (0,191,255)
@@ -43,7 +44,11 @@ riskBlue = (20,20,200)
 riskYellow = (200,200,20)
 
 
-diceSize = 50
+names = ["Duncan", "Isaac", "Lilly", "Finn", "Anna", "Brianna"]
+colors = [red, green, blue, yellow, purple, teal]
+
+
+diceSize = 25
 
 # windowLength = 1200
 # windowWidth = 800

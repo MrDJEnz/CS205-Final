@@ -127,7 +127,7 @@ class Menu():
             pygame.display.update()  # update visuals
             self.fpsClock.tick(30)
 
-    def eventGetter(self, currentMouseX, currentMouseY, numPlayers, numAI):
+    def eventGetter(self, currentMouseX, currentMouseY, numPlayers):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 quit()
@@ -148,7 +148,7 @@ class Menu():
                     pygame.display.update()  # update visuals
                     # TODO run the game
                     sGame = SetupGame(running, self.screen, self.background1, self.clock)
-                    sGame.startGame(numPlayers, running, self.screen, self.background1, self.clock, numAI)
+                    sGame.startGame(numPlayers, running, self.screen, self.background1, self.clock)
                     # game(running, screen, background1, clock)
 
                 # on right click on help (OPTIONS should rename latre)
@@ -171,7 +171,7 @@ class Menu():
                     print("Shutting down ...")
                     os._exit(0)  # clean exit
 
-    def startMenu(self, numPlayers, numAI):
+    def startMenu(self, numPlayers):
         animateMenuX = 0
         print(self.MENUSTAT)
         while self.MENUSTAT == True:
@@ -193,7 +193,7 @@ class Menu():
 
             self.placeButtons(currentMouseX, currentMouseY, formattedPlayButton, formattedHelpButton, formattedExitButton)
 
-            self.eventGetter(currentMouseX, currentMouseY, numPlayers, numAI)
+            self.eventGetter(currentMouseX, currentMouseY, numPlayers)
 
             pygame.display.update()  # update visuals
             self.fpsClock.tick(30)
