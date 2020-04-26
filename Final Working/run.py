@@ -12,10 +12,15 @@ def run():
     clock = pygame.time.Clock()
     pygame.display.set_caption("Risk (GAME WINDOW)")
     background1 = pygame.image.load(c.imagePath + c.menuBackgroundImage)
-    numPlayers = 2
-    newMenu = Menu(MENUSTAT, screen, clock, background1)
+    numPlayers = 1
+    numAI = 1
+    if numPlayers + numAI >= 2:
+        print("OK running")
+        newMenu = Menu(MENUSTAT, screen, clock, background1)
 
-    Menu.startMenu(newMenu,numPlayers)
+        Menu.startMenu(newMenu,numPlayers, numAI)
+    else:
+        print("Rerun not enough players")
 
 if __name__ == "__main__":
     run()
