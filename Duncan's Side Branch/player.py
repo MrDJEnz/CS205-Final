@@ -1,7 +1,7 @@
 class Player():
     def __init__(self, id, Map, turns):
         self.id = id
-        self.playerTroops = 0
+        self.num_troops = 0
         self.name = ""
         self.territories = []
         self._bonus = 0

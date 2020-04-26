@@ -4,6 +4,7 @@ import constants as c
 from interacting import Interacting
 from RiskGUI import GUI
 import glob
+import uiInteractions
 from sprites import Sprites
 
 class RunGame():
@@ -88,8 +89,6 @@ class RunGame():
     # ==================================================================================================================
     # Method utilizes overlay methods to update pygameWindow
 
-
-
     def display(self, function = None):
 
         # Loads png sprites for highlighting selected territories
@@ -106,17 +105,17 @@ class RunGame():
         gameEnd = False
         gui = GUI()
         runcommands = Interacting()
-        finalLayout = runcommands.formatTerr(worldTerritories, territorySprites, highlightedTerritories, gui, self.colorTerritories, self.textList, self.map)
+        finalLayout = uiInteractions.formatTerr(self, worldTerritories, territorySprites, highlightedTerritories, gui)
 
         # Event handler
         while (not gameEnd):
 
             gameEnd, helpFlag, selectFlag, selectedTerritory = \
-                runcommands.eventHandler(gameEnd, helpFlag, selectFlag, selectedTerritory, self.troopCount, self.turn)
+                uiInteractions.eventHandler(self, gameEnd, helpFlag, selectFlag, selectedTerritory)
 
-            runcommands.sendSurface(finalLayout, self.surfaces, self.pygameWindow, self.textList, self.tempTerritoryList, self.topLevel, self.interfaceDice, self.functions, self.map)
+            uiInteractions.sendSurface(self, finalLayout)
 
-            runcommands.topLay(helpFlag, gui, self.turn, self.pygameWindow, self.players)
+            uiInteractions.topLay(self, helpFlag, gui)
 
 
             # Highlight territories as cursor moves over them
@@ -134,11 +133,11 @@ class RunGame():
                     spriteLayer = next((territorySprite for territorySprite in highlightedTerritories if
                                         territorySprite.id == temptroopValID), None)
 
-                    click = runcommands.updateVisualGetClick(temptroopValID, selectedTerritory, spriteLayer, self.pygameWindow)
+                    click = uiInteractions.updateVisualGetClick(self, temptroopValID, selectedTerritory, spriteLayer)
 
                     # Placing reinforcements on owned territories
                     if self.turn.list_phase[self.turn.phase] == "Placement":
-                        runcommands.placing(click, temptroopValID, self.map, self.turn, self.troopCount)
+                        uiInteractions.placing(self, click, temptroopValID)
 
                     # Attacking neighboring territories with n-1 troops
                     elif self.turn.list_phase[self.turn.phase] == "Attack":
@@ -195,7 +194,7 @@ class RunGame():
 
                     # Moving troops between territories
                     elif self.turn.list_phase[self.turn.phase] == "Movement":
-                        selectFlag = runcommands.moving(click, selectFlag, temptroopValID, spriteLayer, startTerritory, self.map, self.turn, self.tempTerritoryList, self.troopCount)
+                        selectFlag = uiInteractions.moving(self, click, selectFlag, temptroopValID, spriteLayer, startTerritory)
 
 
                     # Update troop text overlay visuals
