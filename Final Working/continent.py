@@ -1,7 +1,5 @@
-# Team 9 RISK
 from territories import Territories
 
-# Used for continent bonuses and for territory sorting
 class Continent():
     def __init__(self, territories, bonus, name, Map):
         self.bonus = bonus

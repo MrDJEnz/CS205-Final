@@ -1,6 +1,3 @@
-# Team 9 RISK
-
-# Used by other classes, holds player data
 class Player():
     def __init__(self, id, Map, turns):
         self.id = id
@@ -17,8 +14,7 @@ class Player():
         self.cards = []
         self.attack_success = False
 
-    # Method for removing cards
-    def delCard(self, card_index):
+    def del_card(self, card_index):
         self.cards.pop(card_index)
 
     # Troop bonus from territories
@@ -26,7 +22,7 @@ class Player():
     def troopsPerTurn(self):
         return max(3, len(self.territories) // 3 + self.bonus)
 
-    # Continent bonus checker
+    # Continent bonus check
     @property
     def bonus(self):
         b = 0

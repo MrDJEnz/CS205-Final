@@ -6,7 +6,7 @@ import random
 class Card():
     def __init__(self):
         self.types = ["Solider", "Calvalry", "Cannon"]
-        bonus = [3, 5, 10, 25]
+        bonus = [5, 8, 10, 12]
         
         rand = random.randint(0, 2)
         
