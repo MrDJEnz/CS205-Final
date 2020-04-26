@@ -5,6 +5,8 @@ from interacting import Interacting
 from RiskGUI import GUI
 import glob
 import uiInteractions
+import random
+import time
 
 class RunGame():
     def __init__(self, window, turn):
@@ -103,14 +105,39 @@ class RunGame():
         gameEnd = False
         startTerritory = None
         targetTerritory = None
+
+        # Create an AI player to do moves
+        AI = self.players
+        # print(AI)
+        count = 0
+        idxP = 0
+        idxAi = 0
+        AIPLAYER = []
+        Players = []
+        ID = []
+        for i in AI:
+            f = i.name
+            if "AI" not in f:
+                Players.append(f)
+                print(str(Players[idxP]) + " is the " + str(count) + " index in list")
+                idxP += 1
+                ID.append(idxP)
+            else:
+                AIPLAYER.append(f)
+                print(str(AIPLAYER[idxAi]) + " is the " + str(count) + " index in list")
+                idxAi += 1
+                ID.append(idxAi)
+            count += 1
+
+
         gui = GUI()
         finalLayout = uiInteractions.formatTerr(self, worldTerritories, territorySprites, highlightedTerritories, gui)
 
         # Event handler
         while (not gameEnd):
-
+            pName = self.turn.players[self.turn.turnCount - 1].name
             gameEnd, helpFlag, selectFlag, spriteSelected = \
-                uiInteractions.eventHandler(self, gameEnd, helpFlag, selectFlag, spriteSelected)
+                uiInteractions.eventHandler(self, gameEnd, helpFlag, selectFlag, spriteSelected, pName)
 
             uiInteractions.sendSurface(self, finalLayout)
 
@@ -132,14 +159,123 @@ class RunGame():
                     spriteLayer = next((territorySprite for territorySprite in highlightedTerritories if
                                         territorySprite.id == temptroopValID), None)
 
-                    click = uiInteractions.updateVisualGetClick(self, temptroopValID, spriteSelected, spriteLayer)
+                    click = uiInteractions.updateVisualGetClick(self, temptroopValID, spriteSelected, spriteLayer, pName)
 
                     # Placing reinforcements on owned territories
                     if self.turn.list_phase[self.turn.phase] == "Placement":
+                        if "AI" in pName:
+                            avail = []
+                            for p in self.map.territories: # Gets all territories
+                                if p.id_player == self.turn.turnCount:
+                                    avail.append(p)
+
+                            #print(len(avail))
+                            # Randomly pick a country the AI owns...
+                            randCountry = random.randrange(0,len(avail)-1)
+                            troopsMax = self.turn.players[self.turn.turnCount - 1].num_troops
+                            randTroops = random.randrange(1,troopsMax +1)
+                            self.turn.placeTroops(avail[randCountry], randTroops)
+
                         uiInteractions.placing(self, click, temptroopValID)
 
                     # Attacking neighboring territories with n-1 troops
                     elif self.turn.list_phase[self.turn.phase] == "Attack":
+                        if "AI" in pName:
+                            totavail = []
+                            availWTroops = []
+                            for p in self.map.territories:  # Gets all territories
+                                if p.id_player == self.turn.turnCount:
+                                    totavail.append(p)
+
+                            for i in range(len(totavail)):
+                                if totavail[i].num_troops > 1:
+                                    availWTroops.append(totavail[i])
+                            maxT = 0
+                            idxV = 0
+                            idxN = []
+                            for i in availWTroops:
+                                numtroops = i.num_troops
+                                idxN.append((numtroops, i))
+                                if numtroops > maxT:
+                                    maxT = numtroops
+                                    idxV = i
+
+
+
+                            # Now that we have max troops we want to attack a neighbor, since this AI is dumb just randomly pick one
+                            totTargets = []
+                            for p in self.map.territories:
+                                if p.id_player != self.turn.turnCount:
+                                    totTargets.append(p)
+
+                            attackable = []
+                            for i in totTargets:
+                                if i.id in idxV.neighbors:
+                                    attackable.append(i)
+                                    # print(i.id)
+
+
+                            # for i in range(len(availWTroops)):
+                            #     if len(attackable) < 1:
+                            #         attackable = []
+                            #         idxV = 0
+                            #         lrgst = 0
+                            #         for j in idxN:
+                            #             numtroops = j[0]
+                            #             if maxT > numtroops > lrgst:
+                            #                 lrgst = numtroops
+                            #                 idxV = j[1]
+                            #                 for k in j[1].neighbors:
+                            #                     attackable.append(k)
+
+                            # print("sdf " + str(totTargets))
+                            randTarget = random.randrange(0, len(attackable))
+                            # print(randTarget)
+                            # print(attackable)
+                            # idxT = attackable[randTarget]
+                            # print(idxT)
+                            #print(len(attackable))
+                            # if idxT.id_player != self.turn.turnCount and idxT.id in idxV.neighbors:
+                            #     print("ATTACKING")
+                            tgts = []
+                            if maxT == idxV.num_troops:
+                                # print("Using strongest army.")
+                                for i in idxV.neighbors:
+                                    tgts.append(i)
+                                if idxV.id_player == self.turn.turnCount and idxV.id in attackable[randTarget].neighbors:
+                                    # print("ATTACKING")
+                                    try:
+                                        self.interfaceDice = []
+                                        attackResult, diceResults = self.turn.attack(idxV, totTargets[randTarget],
+                                                                                     self.troopCount)
+                                        for i, res in enumerate(diceResults):
+                                            gui.diceRolls(self, res[0], res[2], 600, territorySprites[
+                                                0].layout.get_height() + 10 + i * c.diceSize * 1.1)
+                                            gui.diceRolls(self, res[1], res[3], 800, territorySprites[
+                                                0].layout.get_height() + 10 + i * c.diceSize * 1.1)
+                                        pygame.time.wait(100)
+                                    except ValueError as e:
+                                        print(e.args)
+                                        attackResult = False
+                                        self.tempTerritoryList = []
+
+                                    if attackResult:  # On successful attack, update visuals
+                                        sprite = next((s for s in territorySprites if s.id == temptroopValID), None)
+                                        gui.setSurfaceColor(sprite, self.turn.players[self.turn.turnCount - 1].color,
+                                                            255)
+                                        time.sleep(.05)
+                                        finalLayout.blit(sprite.layout, (0, 0))
+                                        targetTerritory = totTargets[randTarget]
+                                        self.numTroops = idxV.num_troops - 1
+
+                                    else:
+                                        self.tempTerritoryList = []
+                            elif idxV.num_troops > 1:
+                                print("Using army with less troops")
+                            else:
+                                print("No available attacks")
+
+
 
                         attackFlag, selectFlag, startTerritory, targetTerritory = uiInteractions.attacking(self, click, selectFlag, temptroopValID, spriteLayer, attackFlag, gui, territorySprites, finalLayout, startTerritory, targetTerritory)
 

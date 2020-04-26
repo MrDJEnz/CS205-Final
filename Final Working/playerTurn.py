@@ -27,6 +27,9 @@ class PlayerTurn():
         self.phase = 0
         self._player_ = self.turnList[self.id_turnList]
 
+    def playerName(self):
+        return self.players[self.turnCount -1].name
+
     def next(self):
         if self.players[self.turnCount - 1].num_troops > 0:
             raise ValueError("Need to deploy", self.players[self.turnCount - 1].num_troops)
@@ -228,10 +231,10 @@ class PlayerTurn():
     def turnCount(self):
         return self.turnList[self.id_turnList]
 
-    # for debug
-    def print_pays(self):
-        for territories in self.territories:
-            territories.print_carac()
+    # # for debug
+    # def print_pays(self):
+    #     for territories in self.territories:
+    #         territories.print_carac()
 
     # Checks if path is valid
     def chemin_exist(self, playerTerritories, territoryA, territoryB):
