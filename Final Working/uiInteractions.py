@@ -1,11 +1,12 @@
+# Team 9 RISK
+
 import pygame
 from pygame import *
 import constants as c
 from sprites import Sprites
 
-
+# Format territory sprites and add to surface
 def formatTerr(self, worldTerritories, territorySprites, highlightedTerritories, gui):
-    # Format territory sprites and add to surface
     for i, j in enumerate(worldTerritories):
         surface = pygame.image.load(j).convert()
         resize = c.windowLength / surface.get_width()
@@ -32,11 +33,13 @@ def formatTerr(self, worldTerritories, territorySprites, highlightedTerritories,
     gui.troopDisplay(self.textList, territorySprites, self.map)
     return finalLayout
 
-
+# Checks user mouse and key interactions
 def eventHandler(self, gameEnd, helpFlag, selectFlag, spriteSelected, ID):
     if "AI" in ID:
         pass
-    for event in pygame.event.get():  # Checks every mouse and key action in window
+
+    # Checks every mouse and key action in window
+    for event in pygame.event.get():
         if event.type == QUIT:
             print("Ending game!")
             gameEnd = True
@@ -82,9 +85,8 @@ def eventHandler(self, gameEnd, helpFlag, selectFlag, spriteSelected, ID):
                 print(e.args)
     return gameEnd, helpFlag, selectFlag, spriteSelected
 
-
+# Sends layers to surface of pygame
 def sendSurface(self, finalLayout):
-    # Sends layers to surface of pygame
     for surface in self.surfaces:
         self.pygameWindow.blit(surface[0], surface[1])
 
@@ -109,9 +111,8 @@ def sendSurface(self, finalLayout):
         for f in self.functions:
             f()
 
-
+# Method for handling the upper most surface layer
 def topLay(self, helpFlag, gui):
-    # Shows victory screen if player completes domination goal
     if self.turn.players[self.turn.turnCount - 1].obj.getGoalStatus() == True:
         self.topLevel = []
 
@@ -138,12 +139,9 @@ def topLay(self, helpFlag, gui):
         else:
             self.topLevel = []
 
-
+# Provides interactive visual changes upon click/presses
 def updateVisualGetClick(self, temptroopValID, selectedTerritory, spriteLayer):
 
-    # if "AI" in pName:
-    #     pass
-    # Update selected territory visuals
     if temptroopValID != selectedTerritory:
         self.pygameWindow.blit(spriteLayer.layout, (0, 0))
         pygame.display.update(spriteLayer.layout.get_rect())
@@ -152,7 +150,7 @@ def updateVisualGetClick(self, temptroopValID, selectedTerritory, spriteLayer):
     click = pygame.mouse.get_pressed()
     return click
 
-
+# Helper for planning phase
 def placing(self, click, temptroopValID):
     if click[0] == 1:
         playerTerritory = next((p for p in self.map.territories if p.id == temptroopValID),
@@ -163,12 +161,15 @@ def placing(self, click, temptroopValID):
         else:
             print("This territory does not belong to the player!")
 
-
+# Helper for troop movement phase
 def moving(self, click, selectFlag, temptroopValID, spriteLayer, startTerritory):
     spriteSelect = 0
+    
     if click[0] == 1 and not selectFlag:  # On left click select territory
         startTerritory = next((p for p in self.map.territories if p.id == temptroopValID), None)
         self.selectedTerritory = startTerritory
+        
+        # One troop must always occupy controlled territories
         if startTerritory.id_player == self.turn.turnCount and startTerritory.num_troops > 1:
             self.troopCount = startTerritory.num_troops - 1
             self.tempTerritoryList.append(spriteLayer.layout)
@@ -189,12 +190,14 @@ def moving(self, click, selectFlag, temptroopValID, spriteLayer, startTerritory)
 
     return selectFlag, spriteSelect
 
-
+# Helper for attack phase
 def attacking(self, click, selectFlag, temptroopValID, spriteLayer, attackFlag, gui, territorySprites, finalLayout,
               startTerritory, targetTerritory):
     if click[0] == 1 and not selectFlag:
         startTerritory = next((p for p in self.map.territories if p.id == temptroopValID), None)
         self.selectedTerritory = startTerritory
+
+        # Always one troop minimun on territories owned
         if startTerritory.id_player == self.turn.turnCount and startTerritory.num_troops > 1:
             self.troopCount = startTerritory.num_troops - 1
             self.tempTerritoryList.append(spriteLayer.layout)
@@ -213,8 +216,11 @@ def attacking(self, click, selectFlag, temptroopValID, spriteLayer, attackFlag, 
             selectFlag = False
             self.tempTerritoryList = []
             attackFlag = False
-
+            
+        # Attack neighboring target with home troops
         elif endTerritory.id_player != self.turn.turnCount and endTerritory.id in startTerritory.neighbors:  # Attack with home troops
+
+            # Get dice roll results and pause
             try:
                 self.interfaceDice = []
                 attackResult, diceResults = self.turn.attack(startTerritory, endTerritory,
@@ -225,12 +231,15 @@ def attacking(self, click, selectFlag, temptroopValID, spriteLayer, attackFlag, 
                     gui.diceRolls(self, res[1], res[3], 800, territorySprites[
                         0].layout.get_height() + 10 + i * c.diceSize * 1.1)
                 pygame.time.wait(100)
+                
             except ValueError as e:
                 print(e.args)
                 attackResult = False
                 selectFlag = False
                 self.tempTerritoryList = []
-            if attackResult:  # On successful attack, update visuals
+                
+            # On successful attack, update visuals and ownership
+            if attackResult:
                 sprite = next((s for s in territorySprites if s.id == temptroopValID), None)
                 gui.setSurfaceColor(sprite, self.turn.players[self.turn.turnCount - 1].color, 255)
                 finalLayout.blit(sprite.layout, (0, 0))
@@ -240,6 +249,7 @@ def attacking(self, click, selectFlag, temptroopValID, spriteLayer, attackFlag, 
             else:
                 selectFlag = False
                 self.tempTerritoryList = []
+                
     return attackFlag, selectFlag, startTerritory, targetTerritory
 
 

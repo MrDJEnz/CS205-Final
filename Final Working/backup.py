@@ -1,11 +1,15 @@
-import pygame
-from pygame import *
-import constants as c
-from interacting import Interacting
-from RiskGUI import GUI
+# Team 9 RISK
+# BACKUP COPY
+
 import glob
 import uiInteractions
+import pygame
+from pygame import *
+from interacting import Interacting
+from RiskGUI import GUI
 from sprites import Sprites
+
+import constants as c
 
 class RunGame():
     def __init__(self, window, turn):

@@ -1,3 +1,6 @@
+# Team 9 RISK
+
+# Used by other classes, holds player data
 class Player():
     def __init__(self, id, Map, turns):
         self.id = id
@@ -14,6 +17,7 @@ class Player():
         self.cards = []
         self.attack_success = False
 
+    # Method for removing cards
     def del_card(self, card_index):
         self.cards.pop(card_index)
 

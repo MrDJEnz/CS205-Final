@@ -1,9 +1,12 @@
+# Team 9 RISK
+
 import random
 from Card import Card
 from player import Player
 from Goal import Goal
 from Objective import Objective
 
+# Contains methods for setting turns. Turn depends on current players
 class PlayerTurn():
     def __init__(self, numPlayers, mapInstance):
         self.endGame = False
@@ -17,7 +20,7 @@ class PlayerTurn():
         for k in range(0, numPlayers):
             self.players.append(Player(k + 1, mapInstance, self))
 
-        # assigns player goals
+        # Assigns player goals
         self.goal = Goal(mapInstance, self)
         for k in range(0, numPlayers):
             self.players[k].obj = Objective(self.goal, self.players[k])
@@ -27,9 +30,11 @@ class PlayerTurn():
         self.phase = 0
         self._player_ = self.turnList[self.id_turnList]
 
+    # Helpers for allocating starting troupes
     def playerName(self):
         return self.players[self.turnCount -1].name
 
+    # Turn actions on attac
     def next(self):
         if self.players[self.turnCount - 1].num_troops > 0:
             raise ValueError("Need to deploy", self.players[self.turnCount - 1].num_troops)
@@ -70,7 +75,7 @@ class PlayerTurn():
         print("Turn Number :", self.num, "order", self.turnList, "player turn", self.turnList[self.id_turnList])
         print(self.list_phase[self.phase])
 
-    # Next player turn
+    # Next player turn actions
     def next_player(self):
         if self.num == 0:  # Initial placement phase
             self.id_turnList = (self.id_turnList + 1) % len(self.turnList)
@@ -119,6 +124,7 @@ class PlayerTurn():
         listTerritoryID = []
         for k in territories:
             listTerritoryID.append(k.id)
+            
         random.shuffle(listTerritoryID)
         n = self.numTerritories // self.numPlayers
         for idx, i in enumerate(range(0, len(listTerritoryID), n)):
@@ -127,11 +133,13 @@ class PlayerTurn():
             else:
                 for pays_restant in listTerritoryID[i:i + n]:  # After distribution, remaing countrys randomly assigned
                     self.players[random.randint(0, self.numPlayers - 1)].territories.append(pays_restant)
+
         for p in self.players:
             for territories in p.territories:
                 self.map.territories[territories - 1].id_player = p.id
                 self.map.territories[territories - 1].num_troops = 1  # Min 1 troop per territory
                 p.num_troops -= 1
+                
         return listTerritoryID
 
     # Get dice roll results
@@ -155,7 +163,7 @@ class PlayerTurn():
                 losses[0] = losses[0] + 1
         return losses
 
-    # Tests attack vs defense forces
+    # Used with dice to calculate successful attacks
     def attack(self, attacker, defender, attackingTroops):
         diceResults = []
 
@@ -230,11 +238,6 @@ class PlayerTurn():
     @property
     def turnCount(self):
         return self.turnList[self.id_turnList]
-
-    # # for debug
-    # def print_pays(self):
-    #     for territories in self.territories:
-    #         territories.print_carac()
 
     # Checks if path is valid
     def chemin_exist(self, playerTerritories, territoryA, territoryB):
