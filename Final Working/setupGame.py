@@ -8,7 +8,6 @@ import constants as c
 
 # Initializes game resources ie: map, ui, pygame
 class SetupGame():
-
     def __init__(self, running, screen, background, clock):
         self.running = running
         self.screen = screen
@@ -25,8 +24,7 @@ class SetupGame():
     # Initialize map and load players
     def startGame(self, numPlayers, running, screen, background, clock, numAI):
 
-        print("we Have 1 AI player")
-
+        print("we Have "+ str(numAI) + " AI player(s)")
         newMap = Map()
 
         totalPlayers = numPlayers + numAI
@@ -40,8 +38,8 @@ class SetupGame():
         names = c.names
         colors = c.colors
 
-        aiNames = []
         # Initialize AI
+        aiNames = []
         for i in range(numAI):
             aiNames.append("AI"+str(i))
 
