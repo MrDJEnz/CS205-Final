@@ -10,7 +10,8 @@ class Objective():
         self.player = player
         self._description = ""
         self.gen_obj()
-
+        
+    # Used for goal setup
     def gen_obj(self):
         if self.type == "Captured continent":
             self.continents = []
@@ -69,7 +70,8 @@ class Objective():
             except IndexError: #Restricted attackable players
                 self.type = self.goal.types[random.randint(0,1)] #Pick different mission
                 self.gen_obj()
-            
+                
+    # Used for goal formatting
     @property
     def description(self):
         if self.type=='capture continents':
@@ -99,6 +101,7 @@ class Objective():
         if self.type=='kill all enemies':
             return self.destoryPlayer(self.target)        
 
+    # Used for checking if territory has been captured
     def captureTerritory(self,nb_pays,nb_troupes):
         numOccupyingTroops=0
         for p in self.goal.map.territories:
@@ -110,26 +113,28 @@ class Objective():
         else:
             return False
 
+    # Checks of all territories in a continent has been captured
     def captureContinent(self,continents,nb_troupes):
         numOccupyingTroops=0
         for c in continents:
             occupiedFlag=True
             for p in c.territories:
-                if p.nb_troupes<nb_troupes or p.id_player!=self.player.id:
-                    occupiedFlag=False
+                if p.nb_troupes < nb_troupes or p.id_player != self.player.id:
+                    occupiedFlag = False
             if occupiedFlag==True:
                 numOccupyingTroops+=1
-        if self.other_cont:
-            #player must have another continent
-            additionnal_cont=0
-            other_conts=[x for x in self.goal.map.continents if x not in continents]
+                
+        if self.other_cont: # Checks if player have another continent
+            additionnal_cont = 0
+            other_conts = [x for x in self.goal.map.continents if x not in continents]
             for c in other_conts:
-                occupiedFlag=True
+                occupiedFlag = True
                 for p in c.territories:
-                    if p.nb_troupes<nb_troupes or p.id_player!=self.player.id:
-                        occupiedFlag=False
-                if occupiedFlag==True:
-                    additionnal_cont+=1
+                    if p.nb_troupes < nb_troupes or p.id_player != self.player.id:
+                        occupiedFlag = False
+                if occupiedFlag == True:
+                    additionnal_cont += 1
+                    
         if numOccupyingTroops == len(continents):
             if self.other_cont and additionnal_cont>0:
                 self.goal.turns.game_finish=True

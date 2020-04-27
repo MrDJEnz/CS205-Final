@@ -1,13 +1,18 @@
-import pygame
-from pygame import *
-import constants as c
-from interacting import Interacting
-from RiskGUI import GUI
+# Team 9 RISK
+
 import glob
 import uiInteractions
 import random
 import time
+import pygame
 
+from pygame import *
+from interacting import Interacting
+from RiskGUI import GUI
+
+import constants as c
+
+# Initializes game as usual howver incorporates basic AI as a player
 class RunGame():
     def __init__(self, window, turn):
         self.pygameWindow = window
@@ -28,6 +33,7 @@ class RunGame():
         self.textList = []  # Contains text overlays
         self.topLevel = []  # Used to hold help and win screen
 
+    # Helpers for troop management
     @property
     def troopCount(self):
         if self.turn.phase == 0:
@@ -98,7 +104,7 @@ class RunGame():
 
         spriteSelected = -1
 
-        # Boolean flags for player functions
+        # Adds an AI player to do moves, new constants serve as player data for the CPU
         selectFlag = False
         attackFlag = False
         helpFlag = False
@@ -106,15 +112,14 @@ class RunGame():
         startTerritory = None
         targetTerritory = None
 
-        # Create an AI player to do moves
         AI = self.players
-        # print(AI)
         count = 0
         idxP = 0
         idxAi = 0
         AIPLAYER = []
         Players = []
         ID = []
+        
         for i in AI:
             f = i.name
             if "AI" not in f:
@@ -129,11 +134,11 @@ class RunGame():
                 ID.append(idxAi)
             count += 1
 
-
+        # Initializes player UI
         gui = GUI()
         finalLayout = uiInteractions.formatTerr(self, worldTerritories, territorySprites, highlightedTerritories, gui)
 
-        # Event handler
+        # Event handler for mouse and button interactions
         while (not gameEnd):
             pName = self.turn.players[self.turn.turnCount - 1].name
             gameEnd, helpFlag, selectFlag, spriteSelected = \
@@ -169,7 +174,6 @@ class RunGame():
                                 if p.id_player == self.turn.turnCount:
                                     avail.append(p)
 
-                            #print(len(avail))
                             # Randomly pick a country the AI owns...
                             randCountry = random.randrange(0,len(avail)-1)
                             troopsMax = self.turn.players[self.turn.turnCount - 1].num_troops
@@ -212,38 +216,14 @@ class RunGame():
                             for i in totTargets:
                                 if i.id in idxV.neighbors:
                                     attackable.append(i)
-                                    # print(i.id)
 
-
-                            # for i in range(len(availWTroops)):
-                            #     if len(attackable) < 1:
-                            #         attackable = []
-                            #         idxV = 0
-                            #         lrgst = 0
-                            #         for j in idxN:
-                            #             numtroops = j[0]
-                            #             if maxT > numtroops > lrgst:
-                            #                 lrgst = numtroops
-                            #                 idxV = j[1]
-                            #                 for k in j[1].neighbors:
-                            #                     attackable.append(k)
-
-                            # print("sdf " + str(totTargets))
+                            # Randomly chooses a valid target and attacks with all troops
                             randTarget = random.randrange(0, len(attackable))
-                            # print(randTarget)
-                            # print(attackable)
-                            # idxT = attackable[randTarget]
-                            # print(idxT)
-                            #print(len(attackable))
-                            # if idxT.id_player != self.turn.turnCount and idxT.id in idxV.neighbors:
-                            #     print("ATTACKING")
                             tgts = []
                             if maxT == idxV.num_troops:
-                                # print("Using strongest army.")
                                 for i in idxV.neighbors:
                                     tgts.append(i)
                                 if idxV.id_player == self.turn.turnCount and idxV.id in attackable[randTarget].neighbors:
-                                    # print("ATTACKING")
                                     try:
                                         self.interfaceDice = []
                                         attackResult, diceResults = self.turn.attack(idxV, totTargets[randTarget],
@@ -275,17 +255,13 @@ class RunGame():
                             else:
                                 print("No available attacks")
 
-
-
+                        # Updates flags after event check
                         attackFlag, selectFlag, startTerritory, targetTerritory = uiInteractions.attacking(self, click, selectFlag, temptroopValID, spriteLayer, attackFlag, gui, territorySprites, finalLayout, startTerritory, targetTerritory)
 
 
 
                     # Moving troops between territories
                     elif self.turn.list_phase[self.turn.phase] == "Movement":
-                        # spriteSelected = None
-                        # selectFlag, spriteSelected = uiInteractions.moving(self, click, selectFlag, temptroopValID, spriteLayer, startTerritory)
-                        # selectFlag = self.moving(click, selectFlag, temptroopValID, spriteLayer, startTerritory)
                         if click[0] == 1 and not selectFlag:  # On left click select territory
                             startTerritory = next((p for p in self.map.territories if p.id == temptroopValID), None)
                             self.selectedTerritory = startTerritory

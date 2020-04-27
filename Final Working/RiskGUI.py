@@ -1,14 +1,16 @@
+# Team 9 RISK
 import pygame
 import constants as c
 
+# Contains methods for UI display
 class GUI():
-
+    
+    # Defines text box for UI
     def textArea(self, text, font, color=(0, 0, 0)):
         textSurface = font.render(text, True, color)
         return textSurface, textSurface.get_rect()
 
-        # Sets sprite overlay colors
-
+    # Sets sprite overlay colors
     def setSurfaceColor(self, sprite, color, alpha):
         for x in range(0, sprite.bounds.width):
             for y in range(0, sprite.bounds.height):
@@ -16,8 +18,7 @@ class GUI():
                     sprite.layout.set_at((sprite.bounds.x + x, sprite.bounds.y + y), color)
                     sprite.layout.set_alpha(alpha)
 
-        # Update troop visual count
-
+    # Update troop visual count
     def troopDisplay(self, textList, sprites, Map):
         smallText = pygame.font.Font(None, 25)
         for sprite in sprites:
@@ -26,8 +27,7 @@ class GUI():
             textBox.center = sprite.bounds.center
             textList.append([textSurface, textBox])
 
-        # Player victory screen if a player completes goals
-
+    # Player victory screen if a player completes goals
     def display_win(self, topLevel, players):
         largeText = pygame.font.Font(None, 75)
         margin = 50
@@ -40,8 +40,7 @@ class GUI():
                 textPosition = (textPosition[0], textPosition[1] + margin)
                 topLevel.append([textSurface, textBox])
 
-        # Adds text to top layer for help screen
-
+    # Adds text to top layer for help screen
     def display_help(self, topLevel):
         largeText = pygame.font.Font(None, 50)
         margin = 50
@@ -67,23 +66,12 @@ class GUI():
         topLevel.append([textSurface, textBox])
         textPosition = (textPosition[0], textPosition[1] + margin)
 
-        ##    textSurface, textBox = textArea("'k' key: Save game [TODO]", largeText, c.white)
-        ##    textBox.topleft = textPosition
-        ##    topLevel.append([textSurface, textBox])
-        ##    textPosition = (textPosition[0], textPosition[1] + margin)
-        ##
-        ##    textSurface, textBox = textArea("'l' key: Load game [TODO]", largeText, c.white)
-        ##    textBox.topleft = textPosition
-        ##    topLevel.append([textSurface, textBox])
-        ##    textPosition = (textPosition[0], textPosition[1] + margin)
-
         textSurface, textBox = self.textArea("'esc' key: quit", largeText, c.white)
         textBox.topleft = textPosition
         topLevel.append([textSurface, textBox])
         textPosition = (textPosition[0], textPosition[1] + margin)
 
-        # Player interface text updates
-
+    # Updates dice visuals and shows respective losses as a column
     def display_hud(self, troopCount, interfaceText, turn, textPosition):
         smallText = pygame.font.Font(None, 25)
         margin = 20
@@ -128,17 +116,19 @@ class GUI():
         textBox.topleft = textPosition
         interfaceText.append([textSurface, textBox])
 
-        # Updates dice visuals and shows respective losses as a column
-
+    # Updates dice visuals and shows respective losses as a column
     def diceRolls(self, gameInstance, troopLosses, numDies, xPos, yPos):
         tempDiceLayer = []
-        for i, j in enumerate(numDies):  # Gets correct die sprite and resizes
+
+        # Gets correct die sprite and resizes
+        for i, j in enumerate(numDies):
             dieSprite = pygame.image.load(c.dicePath + str(j) + ".png").convert_alpha()
             resizeSprite = pygame.transform.scale(dieSprite, (c.diceSize, c.diceSize))
             tempDiceLayer.append(
                 [resizeSprite, gameInstance.pygameWindow.blit(resizeSprite, (i * c.diceSize * 1.1 + xPos, yPos))])
 
-        for deaths in range(0, troopLosses):  # Gets tombstome sprite to represent losses in a row
+        # Gets tombstome sprite to represent losses in a row
+        for deaths in range(0, troopLosses):
             tombstoneSprite = pygame.image.load(c.imagePath + c.deadImage).convert_alpha()
             resizeSprite = pygame.transform.scale(tombstoneSprite, (c.diceSize, c.diceSize))
             tempDiceLayer.append([resizeSprite, gameInstance.pygameWindow.blit(resizeSprite, (
