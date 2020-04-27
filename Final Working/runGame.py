@@ -227,7 +227,7 @@ class RunGame():
                                     try:
                                         self.interfaceDice = []
                                         attackResult, diceResults = self.turn.attack(idxV, totTargets[randTarget],
-                                                                                     self.troopCount)
+                                                                                     idxV.num_troops)
                                         for i, res in enumerate(diceResults):
                                             gui.diceRolls(self, res[0], res[2], 600, territorySprites[
                                                 0].layout.get_height() + 10 + i * c.diceSize * 1.1)
@@ -243,7 +243,6 @@ class RunGame():
                                         sprite = next((s for s in territorySprites if s.id == temptroopValID), None)
                                         gui.setSurfaceColor(sprite, self.turn.players[self.turn.turnCount - 1].color,
                                                             255)
-                                        time.sleep(.05)
                                         finalLayout.blit(sprite.layout, (0, 0))
                                         targetTerritory = totTargets[randTarget]
                                         self.numTroops = idxV.num_troops - 1

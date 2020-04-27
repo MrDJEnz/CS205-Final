@@ -25,8 +25,8 @@ def run():
     background1 = pygame.image.load(c.imagePath + c.menuBackgroundImage)
 
     # Change number of players here
-    numPlayers = 1
-    numAI = 1
+    numPlayers = 0
+    numAI = 2
     
     if numPlayers + numAI >= 2:
         print("OK running")
