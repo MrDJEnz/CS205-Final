@@ -11,9 +11,11 @@ Then, running will bring you to a game menu to start
 
 In game controls are as follows:
   'h key' = Help screen
+  
   'n key' = Next round
   
   'Mouse right/left click' = Select/Unselect territory
+  
   'Mouse up/down scroll' = Increase/Decrease selected troops
 
 Usual game rules are followed. Players use troops and luck in order to
