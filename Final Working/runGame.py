@@ -203,7 +203,13 @@ class RunGame():
                                 if numtroops > maxT:
                                     maxT = numtroops
                                     idxV = i
-
+                            if len(availWTroops) < 1:
+                                for i in totavail:
+                                    numtroops = i.num_troops
+                                    idxN.append((numtroops, i))
+                                    if numtroops > maxT:
+                                        maxT = numtroops
+                                        idxV = i
 
 
                             # Now that we have max troops we want to attack a neighbor, since this AI is dumb just randomly pick one
@@ -227,7 +233,7 @@ class RunGame():
                                     try:
                                         self.interfaceDice = []
                                         attackResult, diceResults = self.turn.attack(idxV, totTargets[randTarget],
-                                                                                     idxV.num_troops)
+                                                                                     idxV.num_troops-1)
                                         for i, res in enumerate(diceResults):
                                             gui.diceRolls(self, res[0], res[2], 600, territorySprites[
                                                 0].layout.get_height() + 10 + i * c.diceSize * 1.1)
